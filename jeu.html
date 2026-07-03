@@ -3,48 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <title>House of Laura | Arène</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- DESIGN DE L'ARÈNE --- */
+        :root {
+            --bg-dark: #09090b;
+            --panel-color: #18181b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --text-main: #ffffff;
+            --text-dim: #a1a1aa;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { font-size: 2.2rem; color: var(--accent-blue); text-align: center; margin-top: 20px; margin-bottom: 5px; }
+        
+        #log {
+            width: 650px;
+            background: #000;
+            border: 1px solid #27272a;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-green);
+            margin: 0 auto 20px auto;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .arena-container {
+            display: flex;
+            gap: 40px;
+            margin: 10px;
+            justify-content: center;
+            align-items: center;
+            width: 90%;
+        }
+
+        #player-row {
+            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 550px;
+        }
+
+        /* --- Cartes --- */
+        .card {
+            width: 140px;
+            height: 220px;
+            background-color: var(--panel-color);
+            border: 2px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            border-color: var(--accent-blue); 
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); 
+        }
+
+        .card-img {
+            width: 100%; height: 130px;
+            background-size: cover; background-position: center;
+            background-repeat: no-repeat;
+            color: var(--text-dim); font-size: 0.75rem;
+            position: relative;
+        }
+
+        .card-info { padding: 8px; text-align: center; }
+        .card-info h3 { margin: 0 0 5px 0; font-size: 0.85rem; }
+        .card-info p { margin: 5px 0 0 0; font-size: 0.75rem; color: var(--text-dim); }
+
+        /* --- Barres de Vie --- */
+        .hp-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 4px; }
+        .hp-fill { height: 100%; background: var(--accent-green); border-radius: 3px; transition: width 0.4s ease; }
+
+        #actions { margin-top: 25px; text-align: center; min-height: 50px; }
+        
+        button {
+            background: var(--panel-color);
+            border: 1px solid var(--accent-blue);
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        button:hover { background: var(--accent-blue); }
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>ARÈNE DE COMBAT</h1>
-        <div id="log">Bienvenue, champion. Sélectionnez un héros pour commencer le combat.</div>
-    </div>
+
+    <h1>ARÈNE DE COMBAT</h1>
+    <div id="log">Initialisation... Sélectionnez un héros pour attaquer.</div>
 
     <div class="arena-container">
+        <!-- Zone IA -->
         <div id="enemy-row"></div>
+        <!-- Zone Joueurs -->
         <div id="player-row"></div>
     </div>
 
+    <!-- Zone des compétences -->
     <div id="actions"></div>
 
-    <script src="game.js"></script>
     <script>
-        // Fonction d'affichage appelée par le moteur de jeu
+        // ==========================================
+        // CONFIGURATION ET ENGIN DE JEU INTÉGRÉ
+        // ==========================================
+        const HEROES_DECK = [
+            { id: 0, name: "House of Laura", img: "house of laura photo jeux de carte.png", hp: 120, maxHp: 120, skills: [ { name: "Coup Rapière", dmg: 20 }, { name: "Égide Sacrée", dmg: -25 }, { name: "Live Ultime", dmg: 55 } ] },
+            { id: 1, name: "Cyber Guerrier", img: "", hp: 140, maxHp: 140, skills: [ { name: "Sabre", dmg: 18 }, { name: "Surcharge", dmg: 45 } ] },
+            { id: 2, name: "Mage Tempête", img: "", hp: 90, maxHp: 90, skills: [ { name: "Éclair", dmg: 25 }, { name: "Foudre", dmg: 60 } ] },
+            { id: 3, name: "Ombre Noire", img: "", hp: 100, maxHp: 100, skills: [ { name: "Dague", dmg: 22 }, { name: "Exécution", dmg: 55 } ] },
+            { id: 4, name: "Paladin Gardien", img: "", hp: 150, maxHp: 150, skills: [ { name: "Marteau", dmg: 15 }, { name: "Soin", dmg: -35 } ] },
+            { id: 5, name: "Alchimiste", img: "", hp: 95, maxHp: 95, skills: [ { name: "Acide", dmg: 20 }, { name: "Explosion", dmg: 50 } ] }
+        ];
+
+        class GameEngine {
+            constructor() {
+                this.state = { playerTeam: [], enemy: null, turn: 'player', selectedIdx: null };
+            }
+
+            init() {
+                this.state.playerTeam = JSON.parse(JSON.stringify(HEROES_DECK));
+                this.state.enemy = { name: "Boss IA Ultime", hp: 350, maxHp: 350 };
+                this.log("Partie lancée ! Cliquez sur un héros pour afficher ses attaques.");
+                renderUI();
+            }
+
+            log(msg) {
+                const logBox = document.getElementById('log');
+                if (logBox) logBox.innerHTML = `<div>> ${msg}</div>`;
+            }
+
+            useSkill(skillIdx) {
+                if (this.state.selectedIdx === null || this.state.turn !== 'player') return;
+                
+                const hero = this.state.playerTeam[this.state.selectedIdx];
+                const skill = hero.skills[skillIdx];
+                
+                if (skill.dmg > 0) {
+                    this.state.enemy.hp = Math.max(0, this.state.enemy.hp - skill.dmg);
+                    this.log(`🔥 ${hero.name} lance ${skill.name} et inflige ${skill.dmg} dégâts !`);
+                } else {
+                    hero.hp = Math.min(hero.maxHp, hero.hp + Math.abs(skill.dmg));
+                    this.log(`💚 ${hero.name} utilise ${skill.name} et récupère ${Math.abs(skill.dmg)} PV.`);
+                }
+                
+                document.getElementById('actions').innerHTML = "";
+                
+                if (this.state.enemy.hp <= 0) {
+                    this.log("🏆 VICTOIRE ÉPIQUE ! Le Boss IA a été détruit en direct !");
+                    this.state.turn = 'ended';
+                    document.getElementById('actions').innerHTML = `<button onclick="location.reload()">REJOUER</button>`;
+                    renderUI();
+                    return;
+                }
+
+                this.executeAITurn();
+            }
+
+            executeAITurn() {
+                this.state.turn = 'enemy';
+                this.state.selectedIdx = null;
+                renderUI();
+                
+                setTimeout(() => {
+                    const aliveHeroes = this.state.playerTeam.filter(h => h.hp > 0);
+                    if (aliveHeroes.length > 0) {
+                        const target = aliveHeroes[Math.floor(Math.random() * aliveHeroes.length)];
+                        const aiDmg = 25;
+                        target.hp = Math.max(0, target.hp - aiDmg);
+                        this.log(`🤖 Le Boss IA réplique et inflige ${aiDmg} dégâts à ${target.name} !`);
+                    }
+                    
+                    const stillAlive = this.state.playerTeam.filter(h => h.hp > 0);
+                    if (stillAlive.length === 0) {
+                        this.log("💀 GAME OVER... Le Boss a terrassé toute ton équipe.");
+                        this.state.turn = 'ended';
+                        document.getElementById('actions').innerHTML = `<button onclick="location.reload()">REJOUER</button>`;
+                        renderUI();
+                        return;
+                    }
+                    
+                    this.state.turn = 'player';
+                    this.log("À ton tour ! Sélectionne un héros disponible.");
+                    renderUI();
+                }, 1200);
+            }
+        }
+
+        const game = new GameEngine();
+
+        // --- AFFICHAGE DE L'INTERFACE INTERNE ---
         function renderUI() {
-            // Afficher tes héros
             const pRow = document.getElementById('player-row');
             pRow.innerHTML = game.state.playerTeam.map((h, i) => `
-                <div class="card" onclick="selectHero(${i})" style="${h.hp <= 0 ? 'opacity: 0.5; filter: grayscale(1);' : ''}">
-                    <div class="card-img" style="background-color: #27272a; background-image: ${h.img ? 'url(\'' + h.img + '\')' : 'none'};">
-                        ${!h.img ? '<span style="display:block; padding-top:60px; text-align:center;">Pas d\'image</span>' : ''}
+                <div class="card" onclick="selectHero(${i})" style="${h.hp <= 0 ? 'opacity: 0.4; filter: grayscale(1); cursor:not-allowed;' : ''} ${game.state.selectedIdx === i ? 'border-color: var(--accent-blue);' : ''}">
+                    <div class="card-img" style="background-color: #27272a; ${h.img ? "background-image: url('" + h.img + "');" : ""}">
+                        ${!h.img ? '<span style="display:block; padding-top:55px; text-align:center;">Pas d\'image</span>' : ''}
                     </div>
                     <div class="card-info">
                         <h3>${h.name}</h3>
-                        <div class="hp-bar"><div class="hp-fill" style="width:${Math.max(0, (h.hp/h.maxHp)*100)}%"></div></div>
-                        <p>${Math.max(0, h.hp)} / ${h.maxHp} HP</p>
+                        <div class="hp-bar"><div class="hp-fill" style="width:${(h.hp/h.maxHp)*100}%"></div></div>
+                        <p>${h.hp} / ${h.maxHp} HP</p>
                     </div>
                 </div>
             `).join('');
 
-            // Afficher l'IA adverse
             const eRow = document.getElementById('enemy-row');
             eRow.innerHTML = `
-                <div class="card" style="border-color: var(--accent-red); transform: scale(1.1);">
-                    <div class="card-info" style="padding-top: 80px;">
-                        <h3 style="color: var(--accent-red);">${game.state.enemy.name}</h3>
-                        <div class="hp-bar"><div class="hp-fill" style="background:var(--accent-red); width:${Math.max(0, (game.state.enemy.hp/game.state.enemy.maxHp)*100)}%"></div></div>
-                        <p>${Math.max(0, game.state.enemy.hp)} HP</p>
+                <div class="card" style="border-color: var(--accent-red); width: 160px; height: 240px; justify-content: center;">
+                    <div class="card-info">
+                        <h2 style="color: var(--accent-red); margin: 0 0 10px 0; font-size: 1.1rem;">${game.state.enemy.name}</h2>
+                        <div class="hp-bar" style="height: 10px;"><div class="hp-fill" style="background:var(--accent-red); width:${(game.state.enemy.hp/game.state.enemy.maxHp)*100}%"></div></div>
+                        <p style="font-size: 1rem; font-weight: bold; margin-top: 10px;">${game.state.enemy.hp} HP</p>
                     </div>
                 </div>
             `;
@@ -55,14 +244,14 @@
             game.state.selectedIdx = i;
             const hero = game.state.playerTeam[i];
             const area = document.getElementById('actions');
+            
             area.innerHTML = hero.skills.map((s, idx) => `
-                <button onclick="game.useSkill(${idx});">${s.name} (${s.dmg > 0 ? '-' : '+'}${Math.abs(s.dmg)} HP)</button>
+                <button onclick="game.useSkill(${idx});">${s.name} (${s.dmg > 0 ? '-' + s.dmg : '+' + Math.abs(s.dmg)} HP)</button>
             `).join('');
             renderUI();
         }
 
-        // Démarrage au chargement de la page
-        window.onload = () => { game.init('Normale'); };
+        window.onload = () => { game.init(); };
     </script>
 </body>
 </html>

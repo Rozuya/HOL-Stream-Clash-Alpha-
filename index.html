@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HOL Arena - Alpha 1.0</title>
+    <title>HOL Arena - Édition Complète</title>
     <style>
         /* ==========================================================================
            VARIABLES & RESET
            ========================================================================== */
         :root {
-            --bg-color: #0d0e15;
-            --panel-bg: rgba(20, 22, 35, 0.85);
-            --primary: #00d2ff;
-            --secondary: #3a7bd5;
-            --accent-purple: #b92b27;
-            --accent-gold: #f4d03f;
+            --bg-color: #0b0c10;
+            --panel-bg: rgba(31, 40, 51, 0.9);
+            --primary: #66fcf1;
+            --secondary: #45a29e;
+            --accent-purple: #9b59b6;
+            --accent-gold: #f1c40f;
             --hp-color: #ff4757;
             --shield-color: #1e90ff;
             --energy-color: #ffa502;
-            --text-main: #f1f2f6;
+            --text-main: #c5c6c7;
             --border-radius: 12px;
             --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -45,23 +45,25 @@
         #background {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1a1c29 0%, #0d0e15 100%);
+            background: radial-gradient(circle at 50% 50%, #1f2833 0%, #0b0c10 100%);
             z-index: -2;
         }
 
         .particle {
             position: absolute;
-            background: rgba(0, 210, 255, 0.5);
+            background: rgba(102, 252, 241, 0.4);
             border-radius: 50%;
             animation: float-up linear infinite;
             pointer-events: none;
             z-index: -1;
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.8);
         }
 
         @keyframes float-up {
             0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
         }
 
         /* ==========================================================================
@@ -90,39 +92,54 @@
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
-            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(102, 252, 241, 0.4);
+            margin-bottom: 5px;
             text-align: center;
         }
 
-        h2 { font-size: 1.5rem; color: #a4b0be; margin-bottom: 40px; }
+        h2 { font-size: 1.5rem; color: #a4b0be; margin-bottom: 40px; font-weight: 300; }
 
         .btn {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.18);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(102, 252, 241, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             color: white;
             padding: 15px 40px;
             font-size: 1.2rem;
             border-radius: 30px;
             cursor: pointer;
             margin: 10px;
-            width: 250px;
+            width: 280px;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
             position: relative;
             overflow: hidden;
+            font-weight: bold;
         }
 
         .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 25px rgba(102, 252, 241, 0.6);
             border-color: var(--primary);
+            color: var(--primary);
         }
 
         .btn:active { transform: translateY(1px); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: #555; color: #777; box-shadow: none; pointer-events: none; }
+
+        .stats-container {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            border: 1px solid #333;
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
 
         /* ==========================================================================
            MODALS (Rules, Options, Credits)
@@ -130,13 +147,14 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
             opacity: 0;
             transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
@@ -146,23 +164,25 @@
             padding: 30px;
             max-width: 600px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 40px rgba(102, 252, 241, 0.2);
             position: relative;
         }
 
         .close-btn {
             position: absolute;
             top: 15px; right: 20px;
-            font-size: 1.5rem;
+            font-size: 2rem;
             cursor: pointer;
             color: var(--primary);
+            transition: color 0.2s;
         }
+        .close-btn:hover { color: #fff; }
 
-        .modal-content h3 { color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .modal-content h3 { color: var(--primary); margin-bottom: 20px; border-bottom: 1px solid rgba(102, 252, 241, 0.2); padding-bottom: 10px; font-size: 1.5rem; }
         .modal-content p, .modal-content ul { margin-bottom: 15px; line-height: 1.6; color: #ced6e0; }
-        .modal-content li { margin-left: 20px; }
+        .modal-content li { margin-left: 20px; margin-bottom: 5px; }
 
         /* ==========================================================================
            COMBAT INTERFACE
@@ -177,7 +197,7 @@
             flex-direction: column;
             justify-content: space-around;
             width: 100%;
-            height: 60vh;
+            height: 65vh;
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -185,7 +205,7 @@
         .team {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             perspective: 1000px;
         }
 
@@ -193,105 +213,131 @@
 
         /* Card Styles */
         .card {
-            width: 140px;
-            height: 220px;
-            background: linear-gradient(180deg, #2c3e50, #1a252f);
+            width: 150px;
+            height: 230px;
+            background: linear-gradient(180deg, #1f2833, #0b0c10);
             border-radius: var(--border-radius);
             padding: 10px;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            border: 2px solid #576574;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #45a29e;
             cursor: pointer;
+            overflow: hidden;
         }
 
         @media (max-width: 768px) {
-            .card { width: 100px; height: 160px; padding: 5px; }
-            .card-name { font-size: 0.7rem; }
-            .card-portrait { height: 60px; }
+            .card { width: 105px; height: 170px; padding: 6px; }
+            .card-name { font-size: 0.75rem; }
+            .card-portrait { height: 60px; font-size: 1.5rem; }
+            .team { gap: 10px; }
+            .combat-hud { flex-direction: column; align-items: stretch; }
+            .controls { flex-direction: row; width: 100%; justify-content: space-between; }
+            .controls .btn { padding: 10px; font-size: 0.9rem; margin: 0; flex: 1; margin: 0 5px; }
+            .combat-log { height: 80px; }
         }
 
         .card.active-turn {
-            transform: translateY(-15px);
-            box-shadow: 0 0 25px var(--accent-gold);
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 0 0 30px var(--accent-gold);
             border-color: var(--accent-gold);
-            animation: pulse-border 1.5s infinite;
+            z-index: 10;
+        }
+
+        .card.targetable {
+            border-color: var(--hp-color);
+            animation: pulse-target 1.5s infinite;
         }
 
         .card.targetable:hover {
-            transform: scale(1.05);
-            border-color: var(--hp-color);
-            box-shadow: 0 0 20px var(--hp-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 25px var(--hp-color);
+            background: linear-gradient(180deg, rgba(255, 71, 87, 0.2), #0b0c10);
+        }
+
+        .card.targetable-ally {
+            border-color: #7bed9f;
+            animation: pulse-ally 1.5s infinite;
+        }
+
+        .card.targetable-ally:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px #7bed9f;
+            background: linear-gradient(180deg, rgba(123, 237, 159, 0.2), #0b0c10);
         }
 
         .card.dead {
             opacity: 0;
             pointer-events: none;
-            transform: scale(0.5) translateY(50px);
+            transform: scale(0.5) translateY(100px) rotateX(45deg);
             transition: all 0.8s ease;
         }
 
         /* Rarities */
         .card[data-rarity="Commune"] { border-color: #95a5a6; }
         .card[data-rarity="Rare"] { border-color: #3498db; }
-        .card[data-rarity="Épique"] { border-color: #9b59b6; }
-        .card[data-rarity="Légendaire"] { border-color: #f1c40f; }
+        .card[data-rarity="Épique"] { border-color: #9b59b6; box-shadow: 0 0 15px rgba(155, 89, 182, 0.4); }
+        .card[data-rarity="Légendaire"] { border-color: #f1c40f; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); background: linear-gradient(180deg, #2c2714, #0b0c10); }
 
         .card-name {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             text-align: center;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
         }
 
         .card-portrait {
             width: 100%;
             height: 90px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.5);
             border-radius: 8px;
             margin-bottom: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2rem;
-            color: rgba(255,255,255,0.2);
-            overflow: hidden;
-            position: relative;
+            font-size: 2.5rem;
+            color: rgba(255,255,255,0.15);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
-        .card-stats { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+        .card-stats { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; }
 
         .stat-bar {
             width: 100%;
-            height: 10px;
-            background: #2f3640;
-            border-radius: 5px;
+            height: 12px;
+            background: #000;
+            border-radius: 6px;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .stat-bar .fill {
             height: 100%;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .stat-bar.hp .fill { background: var(--hp-color); }
-        .stat-bar.shield .fill { background: var(--shield-color); }
-        .stat-bar.energy .fill { background: var(--energy-color); }
+        .stat-bar.hp .fill { background: linear-gradient(90deg, #c0392b, var(--hp-color)); }
+        .stat-bar.shield .fill { background: linear-gradient(90deg, #0984e3, var(--shield-color)); }
+        .stat-bar.energy .fill { background: linear-gradient(90deg, #e67e22, var(--energy-color)); }
 
         .stat-text {
             position: absolute;
             width: 100%;
             text-align: center;
-            font-size: 0.55rem;
-            line-height: 10px;
+            font-size: 0.65rem;
+            line-height: 12px;
             font-weight: bold;
-            text-shadow: 1px 1px 1px #000;
+            text-shadow: 1px 1px 1px #000, -1px -1px 1px #000;
+            color: #fff;
+            z-index: 2;
         }
 
         /* Combat HUD */
@@ -303,36 +349,41 @@
             align-items: flex-end;
             margin-top: auto;
             gap: 20px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(102, 252, 241, 0.2);
         }
 
         .combat-log {
             flex-grow: 1;
             height: 120px;
-            background: var(--panel-bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: var(--border-radius);
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
             padding: 10px;
             overflow-y: auto;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
-        .log-entry { animation: fade-in 0.3s ease; }
-        .log-entry.damage { color: #ff6b81; }
-        .log-entry.heal { color: #7bed9f; }
-        .log-entry.skill { color: #eccc68; }
+        .log-entry { animation: fade-in 0.3s ease; border-left: 3px solid transparent; padding-left: 5px; }
+        .log-entry.damage { color: #ff6b81; border-left-color: #ff6b81; }
+        .log-entry.heal { color: #7bed9f; border-left-color: #7bed9f; }
+        .log-entry.skill { color: #f1c40f; border-left-color: #f1c40f; font-weight: bold; }
+        .log-entry.system { color: var(--primary); border-left-color: var(--primary); font-style: italic; }
 
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            width: 200px;
+            gap: 12px;
+            width: 220px;
         }
 
-        .controls .btn { width: 100%; padding: 10px; font-size: 1rem; margin: 0; }
-        .controls .btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: gray; box-shadow: none; }
+        .controls .btn { width: 100%; padding: 12px; font-size: 1rem; margin: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
         .turn-indicator {
             position: absolute;
@@ -342,18 +393,22 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--primary);
-            text-shadow: 0 0 10px var(--primary);
-            padding: 10px 20px;
+            text-shadow: 0 0 15px var(--primary);
+            padding: 10px 30px;
             background: var(--panel-bg);
-            border-radius: 20px;
+            border-radius: 30px;
             border: 1px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 50;
+            transition: all 0.3s;
         }
 
         /* ==========================================================================
            ANIMATIONS & VFX
            ========================================================================== */
-        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 10px var(--accent-gold); } 50% { box-shadow: 0 0 25px var(--accent-gold); } 100% { box-shadow: 0 0 10px var(--accent-gold); } }
+        @keyframes fade-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse-target { 0% { box-shadow: 0 0 10px var(--hp-color); } 50% { box-shadow: 0 0 25px var(--hp-color); } 100% { box-shadow: 0 0 10px var(--hp-color); } }
+        @keyframes pulse-ally { 0% { box-shadow: 0 0 10px #7bed9f; } 50% { box-shadow: 0 0 25px #7bed9f; } 100% { box-shadow: 0 0 10px #7bed9f; } }
         
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
@@ -363,79 +418,96 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        .flash-red { animation: flashR 0.3s ease; }
-        @keyframes flashR { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 20px red); } }
+        .flash-red { animation: flashR 0.4s ease; }
+        @keyframes flashR { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2.5) drop-shadow(0 0 30px red) sepia(1) hue-rotate(-50deg) saturate(5); } }
 
-        .flash-blue { animation: flashB 0.3s ease; }
-        @keyframes flashB { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 20px blue); } }
+        .flash-blue { animation: flashB 0.4s ease; }
+        @keyframes flashB { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 30px #1e90ff); } }
 
         .flash-green { animation: flashG 0.5s ease; }
-        @keyframes flashG { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 20px lime); } }
+        @keyframes flashG { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 30px lime); } }
 
         .floating-text {
             position: absolute;
-            font-weight: bold;
-            font-size: 1.5rem;
+            font-weight: 900;
+            font-size: 1.8rem;
             pointer-events: none;
-            z-index: 50;
-            animation: float-text 1s ease-out forwards;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            z-index: 100;
+            animation: float-text 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 5px 15px rgba(0,0,0,0.8);
         }
 
         @keyframes float-text {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1); opacity: 0; }
         }
 
         /* Tooltip */
         .tooltip {
             position: absolute;
-            background: rgba(0,0,0,0.9);
+            background: rgba(11, 12, 16, 0.95);
             border: 1px solid var(--primary);
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
             z-index: 200;
-            width: 150px;
+            width: 180px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            color: #fff;
         }
         
         .footer-info {
             position: absolute;
-            bottom: 10px;
-            color: #7f8fa6;
-            font-size: 0.8rem;
+            bottom: 15px;
+            color: #45a29e;
+            font-size: 0.85rem;
             text-align: center;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
+    <!-- Background Animé -->
     <div id="background"></div>
 
+    <!-- ECRAN: ACCUEIL -->
     <div id="screen-home" class="screen active">
         <h1>HOL Arena</h1>
-        <h2>Alpha 1.0</h2>
+        <h2>Édition Complète V1.0</h2>
+        
         <button class="btn" onclick="UI.showScreen('screen-difficulty')">🎮 Jouer</button>
         <button class="btn" onclick="UI.openModal('modal-rules')">📖 Règles</button>
         <button class="btn" onclick="UI.openModal('modal-options')">⚙️ Options</button>
         <button class="btn" onclick="UI.openModal('modal-credits')">📜 Crédits</button>
-        <div class="footer-info">Fan Game non officiel</div>
+        
+        <div class="stats-container">
+            <span id="stat-played">Parties: 0</span>
+            <span id="stat-wins" style="color: #7bed9f">Victoires: 0</span>
+            <span id="stat-losses" style="color: #ff4757">Défaites: 0</span>
+        </div>
+
+        <div class="footer-info">Fan Game Non Officiel • Version Complète</div>
     </div>
 
+    <!-- ECRAN: DIFFICULTÉ -->
     <div id="screen-difficulty" class="screen">
-        <h1>Choix de la difficulté</h1>
-        <button class="btn" onclick="Game.init('easy')">😊 Facile</button>
-        <button class="btn" onclick="Game.init('normal')">😐 Normale</button>
-        <button class="btn" onclick="Game.init('hard')">😈 Difficile</button>
-        <button class="btn" style="margin-top: 30px; border-color: gray;" onclick="UI.showScreen('screen-home')">Retour</button>
+        <h1>Difficulté</h1>
+        <h2>L'IA s'adapte à votre choix</h2>
+        <button class="btn" onclick="Game.init('easy')">😊 Apprenti (Facile)</button>
+        <button class="btn" onclick="Game.init('normal')">⚔️ Gladiateur (Normal)</button>
+        <button class="btn" onclick="Game.init('hard')">🔥 Légende (Difficile)</button>
+        <button class="btn" style="margin-top: 40px; border-color: #555; color: #aaa;" onclick="UI.showScreen('screen-home')">Retour</button>
     </div>
 
+    <!-- ECRAN: COMBAT -->
     <div id="screen-combat" class="screen">
-        <div class="turn-indicator" id="turn-indicator">Début du combat...</div>
+        <div class="turn-indicator" id="turn-indicator">Préparation de l'arène...</div>
         
         <div class="arena">
             <div class="team enemy-team" id="enemy-team"></div>
@@ -445,15 +517,738 @@
         <div class="combat-hud">
             <div class="combat-log" id="combat-log"></div>
             <div class="controls">
-                <button class="btn" id="btn-attack" onclick="Game.selectAction('attack')">⚔️ Attaquer</button>
-                <button class="btn" id="btn-skill" onclick="Game.selectAction('skill')">✨ Compétence</button>
+                <button class="btn" id="btn-attack" onclick="Game.selectAction('attack')">⚔️ Attaque</button>
+                <button class="btn" id="btn-skill" onclick="Game.selectAction('skill')">✨ Spécial</button>
                 <button class="btn" id="btn-skip" onclick="Game.skipTurn()">⏳ Passer</button>
             </div>
         </div>
     </div>
 
+    <!-- ECRAN: FIN -->
     <div id="screen-end" class="screen">
-        <h1 id="end-title" style="font-size: 5rem;">Victoire</h1>
-        <button class="btn" onclick="UI.showScreen('screen-difficulty')">🔄 Rejouer</button>
-        <button class="btn" onclick="UI.showScreen('screen-home')">🏠 Accueil</button>
+        <h1 id="end-title" style="font-size: 5rem; text-shadow: 0 0 40px currentColor;">Victoire</h1>
+        <h2 id="end-subtitle">L'arène vous acclame !</h2>
+        <button class="btn" onclick="UI.showScreen('screen-difficulty')">🔄 Nouvelle Partie</button>
+        <button class="btn" onclick="UI.showScreen('screen-home')">🏠 Menu Principal</button>
     </div>
+
+    <!-- MODAL: REGLES -->
+    <div class="modal-overlay" id="modal-rules">
+        <div class="modal-content">
+            <span class="close-btn" onclick="UI.closeModal('modal-rules')">&times;</span>
+            <h3>📖 Règles de l'Arène</h3>
+            <p><strong>But du jeu :</strong> Dirigez une escouade de 3 héros et anéantissez l'équipe adverse dans des combats stratégiques au tour par tour.</p>
+            <p><strong>Statistiques :</strong></p>
+            <ul>
+                <li><span style="color: var(--hp-color); font-weight:bold;">Vie (Rouge) :</span> L'essence vitale. À 0, le personnage est éliminé.</li>
+                <li><span style="color: var(--shield-color); font-weight:bold;">Bouclier (Bleu) :</span> Armure temporaire qui absorbe les dégâts avant la vie.</li>
+                <li><span style="color: var(--energy-color); font-weight:bold;">Énergie (Jaune) :</span> Se recharge de 1 à chaque tour. Nécessaire pour activer l'attaque spéciale.</li>
+            </ul>
+            <p><strong>Déroulement :</strong> À votre tour, choisissez une action (Attaque simple ou Compétence spéciale si chargée), puis cliquez sur une cible en surbrillance.</p>
+            <p><strong>Raretés :</strong> Commune (Gris), Rare (Bleu), Épique (Violet), Légendaire (Or). Les héros plus rares ont des statistiques ou compétences supérieures.</p>
+        </div>
+    </div>
+
+    <!-- MODAL: OPTIONS -->
+    <div class="modal-overlay" id="modal-options">
+        <div class="modal-content">
+            <span class="close-btn" onclick="UI.closeModal('modal-options')">&times;</span>
+            <h3>⚙️ Options du Jeu</h3>
+            <p>Personnalisez votre expérience de jeu. Les paramètres sont sauvegardés automatiquement.</p>
+            
+            <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <label style="display:flex; justify-content:space-between; align-items: center; cursor: pointer; font-size: 1.1rem;">
+                    Animations de Combat & Particules
+                    <input type="checkbox" id="opt-anim" checked onchange="Options.save()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                </label>
+            </div>
+            
+            <button class="btn" style="width:100%; margin: 0 0 20px 0;" onclick="Options.toggleFullscreen()">Basculer Plein Écran</button>
+            <button class="btn" style="width:100%; margin: 0; border-color: #ff4757; color: #ff4757;" onclick="Options.resetStats()">Réinitialiser les Statistiques</button>
+        </div>
+    </div>
+
+    <!-- MODAL: CREDITS -->
+    <div class="modal-overlay" id="modal-credits">
+        <div class="modal-content">
+            <span class="close-btn" onclick="UI.closeModal('modal-credits')">&times;</span>
+            <h3>📜 Crédits & Infos</h3>
+            <p><strong style="font-size: 1.2rem; color: var(--primary);">HOL Arena - Édition Complète (V1.0)</strong></p>
+            <p>Jeu de cartes stratégique conçu intégralement en un seul fichier (HTML/CSS/JS pur).</p>
+            <p><em>Inspiré de la communauté House of Laura. Ce projet est un Fan Game indépendant, gratuit, créé à des fins de divertissement sans but lucratif.</em></p>
+            <p style="margin-top: 20px; text-align: center; color: #45a29e;">Merci d'avoir joué !</p>
+        </div>
+    </div>
+
+    <!-- Tooltip Element -->
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+        /** =========================================================================
+         * BASE DE DONNÉES DES CARTES (12 Personnages pour la V1.0)
+         * ========================================================================= */
+        const CARD_DB = [
+            // Légendaires
+            { id: "c1", name: "House of Laura", rarity: "Légendaire", hp: 140, shield: 30, atk: 20, maxEnergy: 3, skillType: "heal_team", skillName: "Aura Divine", desc: "Restaure 40 PV à toute votre équipe." },
+            { id: "c2", name: "Dragon Ancien", rarity: "Légendaire", hp: 160, shield: 0, atk: 25, maxEnergy: 4, skillType: "aoe_heavy", skillName: "Souffle Infernal", desc: "Inflige 35 dégâts de zone dévastateurs à tous les ennemis." },
+            
+            // Épiques
+            { id: "c3", name: "HOL Tony", rarity: "Épique", hp: 180, shield: 60, atk: 12, maxEnergy: 3, skillType: "shield_team", skillName: "Mur de Fer", desc: "Confère 50 points de Bouclier à toute l'équipe." },
+            { id: "c4", name: "HOL Omass", rarity: "Épique", hp: 120, shield: 20, atk: 22, maxEnergy: 3, skillType: "lifesteal", skillName: "Vol d'Âme", desc: "Attaque brutale à 40 dégâts. Convertit 100% des dégâts en soin." },
+            { id: "c5", name: "Dark MortelCygne", rarity: "Épique", hp: 110, shield: 40, atk: 18, maxEnergy: 3, skillType: "poison", skillName: "Venin Sombre", desc: "Inflige 30 dégâts bruts qui ignorent totalement les boucliers." },
+            { id: "c6", name: "Paladin Sacré", rarity: "Épique", hp: 150, shield: 30, atk: 15, maxEnergy: 3, skillType: "stun", skillName: "Marteau de Justice", desc: "Inflige 20 dégâts et assomme la cible (lui retire son énergie)." },
+
+            // Rares
+            { id: "c7", name: "HOL Rozuya", rarity: "Rare", hp: 95, shield: 15, atk: 28, maxEnergy: 2, skillType: "aoe_dmg", skillName: "Pluie de Flèches", desc: "Crible l'équipe adverse en infligeant 15 dégâts à tous les ennemis." },
+            { id: "c8", name: "K974YT", rarity: "Rare", hp: 85, shield: 10, atk: 35, maxEnergy: 2, skillType: "heavy_dmg", skillName: "Frappe Chirurgicale", desc: "Coup critique ciblé infligeant 55 dégâts massifs." },
+            { id: "c9", name: "Voleur Furtif", rarity: "Rare", hp: 90, shield: 0, atk: 30, maxEnergy: 2, skillType: "steal_energy", skillName: "Détrousseur", desc: "Inflige 25 dégâts et vole 1 point d'énergie à la cible." },
+            { id: "c10", name: "Soigneur Divin", rarity: "Rare", hp: 100, shield: 20, atk: 10, maxEnergy: 2, skillType: "heal_single", skillName: "Prière", desc: "Soigne un allié ou lui-même de 50 PV." },
+
+            // Communes
+            { id: "c11", name: "Guerrier Ombre", rarity: "Commune", hp: 110, shield: 10, atk: 18, maxEnergy: 2, skillType: "heavy_dmg", skillName: "Coup Fracassant", desc: "Une frappe puissante infligeant 30 dégâts." },
+            { id: "c12", name: "Mage Stellaire", rarity: "Commune", hp: 85, shield: 20, atk: 20, maxEnergy: 3, skillType: "aoe_dmg", skillName: "Éclat Cosmique", desc: "Dégage une vague magique infligeant 12 dégâts à tous les ennemis." }
+        ];
+
+        /** =========================================================================
+         * GESTION DES DONNÉES LOCALES (Options & Statistiques)
+         * ========================================================================= */
+        const Options = {
+            settings: { animations: true },
+            stats: { played: 0, wins: 0, losses: 0 },
+
+            load() {
+                // Charger options
+                const savedOpt = localStorage.getItem('hol_arena_options_v1');
+                if (savedOpt) {
+                    this.settings = JSON.parse(savedOpt);
+                    document.getElementById('opt-anim').checked = this.settings.animations;
+                }
+                // Charger stats
+                const savedStats = localStorage.getItem('hol_arena_stats_v1');
+                if (savedStats) this.stats = JSON.parse(savedStats);
+                this.updateStatsUI();
+            },
+
+            save() {
+                this.settings.animations = document.getElementById('opt-anim').checked;
+                localStorage.setItem('hol_arena_options_v1', JSON.stringify(this.settings));
+            },
+
+            saveStats(won) {
+                this.stats.played++;
+                if (won) this.stats.wins++;
+                else this.stats.losses++;
+                localStorage.setItem('hol_arena_stats_v1', JSON.stringify(this.stats));
+                this.updateStatsUI();
+            },
+
+            updateStatsUI() {
+                document.getElementById('stat-played').innerText = `Parties: ${this.stats.played}`;
+                document.getElementById('stat-wins').innerText = `Victoires: ${this.stats.wins}`;
+                document.getElementById('stat-losses').innerText = `Défaites: ${this.stats.losses}`;
+            },
+
+            resetStats() {
+                if(confirm("Êtes-vous sûr de vouloir réinitialiser toutes vos statistiques ?")) {
+                    this.stats = { played: 0, wins: 0, losses: 0 };
+                    localStorage.setItem('hol_arena_stats_v1', JSON.stringify(this.stats));
+                    this.updateStatsUI();
+                    UI.closeModal('modal-options');
+                }
+            },
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                } else if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        /** =========================================================================
+         * CLASSE CARTE
+         * ========================================================================= */
+        class Card {
+            constructor(data, team) {
+                this.id = data.id + "_" + Math.random().toString(36).substr(2, 5);
+                this.name = data.name;
+                this.rarity = data.rarity;
+                this.maxHp = data.hp;
+                this.hp = data.hp;
+                this.maxShield = data.shield + 80; // Hard cap
+                this.shield = data.shield;
+                this.atk = data.atk;
+                this.maxEnergy = data.maxEnergy;
+                this.energy = 0;
+                this.skillType = data.skillType;
+                this.skillName = data.skillName;
+                this.desc = data.desc;
+                this.team = team;
+                this.isDead = false;
+                this.element = null;
+            }
+
+            takeDamage(amount, ignoreShield = false) {
+                if (this.isDead) return 0;
+                
+                let remainingDmg = amount;
+                
+                if (!ignoreShield && this.shield > 0) {
+                    if (this.shield >= remainingDmg) {
+                        this.shield -= remainingDmg;
+                        remainingDmg = 0;
+                    } else {
+                        remainingDmg -= this.shield;
+                        this.shield = 0;
+                    }
+                    UI.triggerAnimation(this.element, 'flash-blue');
+                }
+
+                if (remainingDmg > 0) {
+                    this.hp -= remainingDmg;
+                    UI.triggerAnimation(this.element, 'flash-red');
+                } else if (!ignoreShield) {
+                    UI.triggerAnimation(this.element, 'shake'); // Seulement shake si absorbé
+                }
+                
+                if (remainingDmg > 0) UI.triggerAnimation(this.element, 'shake');
+                this.updateUI();
+
+                if (this.hp <= 0) {
+                    this.hp = 0;
+                    this.die();
+                }
+                return amount;
+            }
+
+            heal(amount) {
+                if (this.isDead) return;
+                this.hp = Math.min(this.hp + amount, this.maxHp);
+                UI.triggerAnimation(this.element, 'flash-green');
+                this.updateUI();
+            }
+
+            addShield(amount) {
+                if (this.isDead) return;
+                this.shield = Math.min(this.shield + amount, this.maxShield);
+                UI.triggerAnimation(this.element, 'flash-blue');
+                this.updateUI();
+            }
+
+            addEnergy(amount) {
+                if (this.isDead) return;
+                this.energy = Math.max(0, Math.min(this.energy + amount, this.maxEnergy));
+                this.updateUI();
+            }
+
+            die() {
+                this.isDead = true;
+                this.shield = 0;
+                this.energy = 0;
+                this.updateUI();
+                if (this.element) this.element.classList.add('dead');
+                Game.log(`☠️ ${this.name} est K.O !`, 'system');
+            }
+
+            updateUI() {
+                if (!this.element) return;
+                const hpFill = this.element.querySelector('.hp .fill');
+                const shieldFill = this.element.querySelector('.shield .fill');
+                const energyFill = this.element.querySelector('.energy .fill');
+                
+                const hpText = this.element.querySelector('.hp .stat-text');
+                const shieldText = this.element.querySelector('.shield .stat-text');
+                const energyText = this.element.querySelector('.energy .stat-text');
+
+                hpFill.style.width = `${(this.hp / this.maxHp) * 100}%`;
+                hpText.textContent = `${this.hp}/${this.maxHp}`;
+
+                shieldFill.style.width = `${(this.shield / this.maxShield) * 100}%`;
+                shieldText.textContent = `${this.shield}`;
+
+                energyFill.style.width = `${(this.energy / this.maxEnergy) * 100}%`;
+                energyText.textContent = `${this.energy}/${this.maxEnergy}`;
+            }
+
+            generateHTML() {
+                const initials = this.name.split(' ').map(n=>n[0]).join('').substring(0, 2).toUpperCase();
+                return `
+                    <div class="card" id="${this.id}" data-rarity="${this.rarity}" onclick="Game.onCardClick('${this.id}')" onmouseenter="UI.showTooltip(event, '${this.name}', '${this.desc}')" onmouseleave="UI.hideTooltip()">
+                        <div class="card-name">${this.name}</div>
+                        <div class="card-portrait">${initials}</div>
+                        <div class="card-stats">
+                            <div class="stat-bar hp"><div class="fill" style="width: 100%;"></div><div class="stat-text">${this.hp}/${this.maxHp}</div></div>
+                            <div class="stat-bar shield"><div class="fill" style="width: ${(this.shield/this.maxShield)*100}%;"></div><div class="stat-text">${this.shield}</div></div>
+                            <div class="stat-bar energy"><div class="fill" style="width: 0%;"></div><div class="stat-text">0/${this.maxEnergy}</div></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /** =========================================================================
+         * INTERFACE UTILISATEUR (UI)
+         * ========================================================================= */
+        const UI = {
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(screenId).classList.add('active');
+            },
+            openModal(modalId) {
+                document.getElementById(modalId).style.display = 'flex';
+                setTimeout(() => document.getElementById(modalId).style.opacity = '1', 10);
+            },
+            closeModal(modalId) {
+                document.getElementById(modalId).style.opacity = '0';
+                setTimeout(() => document.getElementById(modalId).style.display = 'none', 300);
+            },
+            createFloatingText(element, text, color) {
+                if (!Options.settings.animations || !element) return;
+                const rect = element.getBoundingClientRect();
+                const ft = document.createElement('div');
+                ft.className = 'floating-text';
+                ft.style.color = color;
+                ft.innerText = text;
+                const offsetX = (Math.random() - 0.5) * 60;
+                const offsetY = (Math.random() - 0.5) * 40;
+                ft.style.left = `${rect.left + rect.width / 2 + offsetX}px`;
+                ft.style.top = `${rect.top + rect.height / 2 + offsetY}px`;
+                document.body.appendChild(ft);
+                setTimeout(() => ft.remove(), 1200);
+            },
+            triggerAnimation(element, animClass) {
+                if (!Options.settings.animations || !element) return;
+                element.classList.remove(animClass);
+                void element.offsetWidth; // Force reflow
+                element.classList.add(animClass);
+                setTimeout(() => element.classList.remove(animClass), 500);
+            },
+            showTooltip(e, title, desc) {
+                const tt = document.getElementById('tooltip');
+                tt.innerHTML = `<strong style="color:var(--primary); font-size:1rem;">${title}</strong><br><br>${desc}`;
+                tt.style.opacity = '1';
+                tt.style.left = e.pageX + 15 + 'px';
+                tt.style.top = e.pageY + 15 + 'px';
+            },
+            hideTooltip() {
+                document.getElementById('tooltip').style.opacity = '0';
+            },
+            updateTurnIndicator(text, color) {
+                const ind = document.getElementById('turn-indicator');
+                ind.innerText = text;
+                ind.style.color = color;
+                ind.style.borderColor = color;
+                ind.style.textShadow = `0 0 15px ${color}`;
+            }
+        };
+
+        /** =========================================================================
+         * MOTEUR DE JEU (Logique Principale)
+         * ========================================================================= */
+        const Game = {
+            difficulty: 'normal',
+            playerTeam: [],
+            enemyTeam: [],
+            turnOrder: [],
+            currentTurnIndex: 0,
+            activeCard: null,
+            state: 'idle', // idle, select_target, ai_playing, animating, game_over
+            selectedAction: null, 
+            
+            init(difficulty) {
+                this.difficulty = difficulty;
+                this.setupTeams();
+                this.renderArena();
+                document.getElementById('combat-log').innerHTML = '';
+                
+                let diffText = difficulty === 'easy' ? 'Apprenti' : (difficulty === 'normal' ? 'Gladiateur' : 'Légende');
+                this.log(`⚔️ Le combat commence ! (Mode : ${diffText})`, 'system');
+                
+                UI.showScreen('screen-combat');
+                this.state = 'idle';
+                this.generateTurnOrder();
+                
+                // Petit délai avant le premier tour pour l'esthétique
+                setTimeout(() => this.startTurn(), 1500);
+            },
+
+            setupTeams() {
+                let available = [...CARD_DB];
+                available.sort(() => 0.5 - Math.random()); // Mélange
+                
+                this.playerTeam = available.slice(0, 3).map(data => new Card(data, 'player'));
+                this.enemyTeam = available.slice(3, 6).map(data => new Card(data, 'enemy'));
+            },
+
+            renderArena() {
+                document.getElementById('player-team').innerHTML = this.playerTeam.map(c => c.generateHTML()).join('');
+                document.getElementById('enemy-team').innerHTML = this.enemyTeam.map(c => c.generateHTML()).join('');
+
+                this.playerTeam.forEach(c => c.element = document.getElementById(c.id));
+                this.enemyTeam.forEach(c => c.element = document.getElementById(c.id));
+            },
+
+            log(msg, type = '') {
+                const logBox = document.getElementById('combat-log');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.innerText = msg;
+                logBox.appendChild(entry);
+                logBox.scrollTop = logBox.scrollHeight;
+            },
+
+            generateTurnOrder() {
+                this.turnOrder = [];
+                for (let i = 0; i < 3; i++) {
+                    if (this.playerTeam[i]) this.turnOrder.push(this.playerTeam[i]);
+                    if (this.enemyTeam[i]) this.turnOrder.push(this.enemyTeam[i]);
+                }
+                this.currentTurnIndex = 0;
+            },
+
+            startTurn() {
+                if (this.checkWinCondition()) return;
+
+                document.querySelectorAll('.card').forEach(c => {
+                    c.classList.remove('active-turn', 'targetable', 'targetable-ally');
+                });
+
+                this.activeCard = this.turnOrder[this.currentTurnIndex];
+                
+                if (this.activeCard.isDead) {
+                    this.nextTurn();
+                    return;
+                }
+
+                this.activeCard.element.classList.add('active-turn');
+                this.activeCard.addEnergy(1);
+
+                if (this.activeCard.team === 'player') {
+                    UI.updateTurnIndicator(`Tour de ${this.activeCard.name}`, 'var(--primary)');
+                    this.state = 'idle';
+                    this.updateControls();
+                } else {
+                    UI.updateTurnIndicator(`Tour ennemi (${this.activeCard.name})`, '#ff4757');
+                    this.state = 'ai_playing';
+                    this.disableControls();
+                    setTimeout(() => this.playAI(), 1200); // Temps de réflexion IA
+                }
+            },
+
+            updateControls() {
+                document.getElementById('btn-attack').disabled = false;
+                document.getElementById('btn-skip').disabled = false;
+                const skillBtn = document.getElementById('btn-skill');
+                
+                if (this.activeCard.energy >= this.activeCard.maxEnergy) {
+                    skillBtn.disabled = false;
+                    skillBtn.style.boxShadow = "0 0 20px var(--energy-color)";
+                    skillBtn.style.color = "var(--energy-color)";
+                    skillBtn.style.borderColor = "var(--energy-color)";
+                    skillBtn.innerText = `✨ ${this.activeCard.skillName}`;
+                } else {
+                    skillBtn.disabled = true;
+                    skillBtn.style.boxShadow = "none";
+                    skillBtn.style.color = "white";
+                    skillBtn.style.borderColor = "rgba(102, 252, 241, 0.3)";
+                    skillBtn.innerText = `✨ Spécial (${this.activeCard.energy}/${this.activeCard.maxEnergy})`;
+                }
+            },
+
+            disableControls() {
+                document.getElementById('btn-attack').disabled = true;
+                document.getElementById('btn-skill').disabled = true;
+                document.getElementById('btn-skip').disabled = true;
+                document.getElementById('btn-skill').style.boxShadow = "none";
+            },
+
+            selectAction(actionType) {
+                if (this.state !== 'idle' && this.state !== 'select_target') return;
+                this.selectedAction = actionType;
+                this.state = 'select_target';
+                
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('targetable', 'targetable-ally'));
+                
+                // Auto-cast pour compétences de zone ou d'équipe
+                if (actionType === 'skill') {
+                    if (['heal_team', 'shield_team'].includes(this.activeCard.skillType)) {
+                        this.executeAction(this.activeCard);
+                        return;
+                    }
+                    if (['aoe_dmg', 'aoe_heavy'].includes(this.activeCard.skillType)) {
+                        this.executeAction(this.enemyTeam.find(c => !c.isDead)); // N'importe quel ennemi vivant
+                        return;
+                    }
+                }
+
+                // Définition des cibles (Ennemis vs Alliés)
+                let validTargets = [];
+                let isAllyTarget = false;
+
+                if (actionType === 'attack' || (actionType === 'skill' && ['lifesteal', 'heavy_dmg', 'poison', 'stun', 'steal_energy'].includes(this.activeCard.skillType))) {
+                    validTargets = this.enemyTeam.filter(c => !c.isDead);
+                } else if (actionType === 'skill' && this.activeCard.skillType === 'heal_single') {
+                    validTargets = this.playerTeam.filter(c => !c.isDead);
+                    isAllyTarget = true;
+                }
+
+                this.log(`Ciblez une carte pour : ${actionType === 'attack' ? 'Attaque' : this.activeCard.skillName}`, 'system');
+
+                validTargets.forEach(c => {
+                    c.element.classList.add(isAllyTarget ? 'targetable-ally' : 'targetable');
+                });
+            },
+
+            onCardClick(targetId) {
+                if (this.state !== 'select_target') return;
+                
+                let target = this.enemyTeam.find(c => c.id === targetId) || this.playerTeam.find(c => c.id === targetId);
+                
+                if (!target || target.isDead) return;
+                if (!target.element.classList.contains('targetable') && !target.element.classList.contains('targetable-ally')) {
+                    this.log("Cible invalide.", 'system');
+                    return;
+                }
+
+                this.executeAction(target);
+            },
+
+            executeAction(target) {
+                this.disableControls();
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('targetable', 'targetable-ally'));
+                
+                if (this.selectedAction === 'attack') {
+                    this.performAttack(this.activeCard, target);
+                } else if (this.selectedAction === 'skill') {
+                    this.performSkill(this.activeCard, target);
+                }
+
+                this.state = 'animating';
+                setTimeout(() => this.nextTurn(), 1400); // Laisse le temps aux VFX de se finir
+            },
+
+            skipTurn() {
+                if (this.state !== 'idle' && this.state !== 'select_target') return;
+                this.log(`⏳ ${this.activeCard.name} passe son tour.`, 'system');
+                this.disableControls();
+                this.state = 'animating';
+                setTimeout(() => this.nextTurn(), 500);
+            },
+
+            nextTurn() {
+                if (this.checkWinCondition()) return;
+                this.currentTurnIndex++;
+                if (this.currentTurnIndex >= this.turnOrder.length) {
+                    this.currentTurnIndex = 0;
+                }
+                this.startTurn();
+            },
+
+            performAttack(attacker, target) {
+                const dmg = attacker.atk;
+                this.log(`🗡️ ${attacker.name} attaque ${target.name} (-${dmg} PV)`, 'damage');
+                target.takeDamage(dmg);
+                UI.createFloatingText(target.element, `-${dmg}`, 'var(--hp-color)');
+            },
+
+            performSkill(caster, mainTarget) {
+                caster.energy = 0;
+                caster.updateUI();
+                this.log(`✨ ${caster.name} lance [${caster.skillName}] !`, 'skill');
+
+                const type = caster.skillType;
+                const allies = caster.team === 'player' ? this.playerTeam : this.enemyTeam;
+                const enemies = caster.team === 'player' ? this.enemyTeam : this.playerTeam;
+
+                switch(type) {
+                    case 'heal_team':
+                        allies.forEach(c => {
+                            if(!c.isDead) { c.heal(40); UI.createFloatingText(c.element, "+40", "lime"); }
+                        });
+                        break;
+                    case 'shield_team':
+                        allies.forEach(c => {
+                            if(!c.isDead) { c.addShield(50); UI.createFloatingText(c.element, "+50", "var(--shield-color)"); }
+                        });
+                        break;
+                    case 'aoe_dmg':
+                        enemies.forEach(c => {
+                            if(!c.isDead) { c.takeDamage(15); UI.createFloatingText(c.element, "-15", "var(--hp-color)"); }
+                        });
+                        break;
+                    case 'aoe_heavy':
+                        enemies.forEach(c => {
+                            if(!c.isDead) { c.takeDamage(35); UI.createFloatingText(c.element, "-35", "var(--hp-color)"); }
+                        });
+                        break;
+                    case 'lifesteal':
+                        mainTarget.takeDamage(40);
+                        UI.createFloatingText(mainTarget.element, "-40", "var(--hp-color)");
+                        setTimeout(() => {
+                            caster.heal(40);
+                            UI.createFloatingText(caster.element, "+40", "lime");
+                        }, 500);
+                        break;
+                    case 'heavy_dmg':
+                        mainTarget.takeDamage(55);
+                        UI.createFloatingText(mainTarget.element, "-55", "var(--hp-color)");
+                        break;
+                    case 'poison':
+                        mainTarget.takeDamage(30, true); // True damage
+                        UI.createFloatingText(mainTarget.element, "-30 Brut", "#9b59b6");
+                        break;
+                    case 'stun':
+                        mainTarget.takeDamage(20);
+                        mainTarget.energy = 0; // Stun reset l'énergie
+                        mainTarget.updateUI();
+                        UI.createFloatingText(mainTarget.element, "-20 (Stun)", "#f1c40f");
+                        break;
+                    case 'steal_energy':
+                        mainTarget.takeDamage(25);
+                        if(mainTarget.energy > 0) {
+                            mainTarget.addEnergy(-1);
+                            setTimeout(() => caster.addEnergy(1), 400);
+                        }
+                        UI.createFloatingText(mainTarget.element, "-25", "var(--hp-color)");
+                        break;
+                    case 'heal_single':
+                        mainTarget.heal(50);
+                        UI.createFloatingText(mainTarget.element, "+50", "lime");
+                        break;
+                }
+            },
+
+            // ==========================================
+            // INTELLIGENCE ARTIFICIELLE
+            // ==========================================
+            playAI() {
+                if (this.state === 'game_over') return;
+                let caster = this.activeCard;
+                let alivePlayers = this.playerTeam.filter(c => !c.isDead);
+                let aliveAllies = this.enemyTeam.filter(c => !c.isDead); // Alliés de l'IA
+                
+                if (alivePlayers.length === 0) return;
+
+                let action = 'attack';
+                let target = alivePlayers[0];
+
+                // 1. Décision d'utiliser la compétence
+                let canUseSkill = caster.energy >= caster.maxEnergy;
+                if (canUseSkill) {
+                    if (this.difficulty === 'easy' && Math.random() > 0.6) {
+                        action = 'attack'; // IA facile oublie souvent son skill
+                    } else {
+                        action = 'skill';
+                    }
+                }
+
+                // 2. Choix de la cible
+                if (action === 'skill' && caster.skillType === 'heal_single') {
+                    // Cible un allié qui a besoin de soin (celui qui a le moins de % HP)
+                    target = aliveAllies.reduce((prev, curr) => (prev.hp / prev.maxHp) < (curr.hp / curr.maxHp) ? prev : curr);
+                } 
+                else if (action === 'skill' && ['heal_team', 'shield_team', 'aoe_dmg', 'aoe_heavy'].includes(caster.skillType)) {
+                    target = caster; // Auto-target pour les sorts de zone
+                }
+                else {
+                    // Ciblages offensifs (Attack ou Single Target Skill)
+                    if (this.difficulty === 'easy') {
+                        // Au hasard
+                        target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+                    } 
+                    else if (this.difficulty === 'normal') {
+                        // Vise celui qui a le moins de PV+Bouclier (opportuniste)
+                        target = alivePlayers.reduce((prev, curr) => (prev.hp + prev.shield) < (curr.hp + curr.shield) ? prev : curr);
+                    } 
+                    else if (this.difficulty === 'hard') {
+                        // Hard mode : cherche le kill garanti en priorité
+                        let dmgPotential = action === 'skill' && ['heavy_dmg','lifesteal'].includes(caster.skillType) ? 40 : caster.atk;
+                        let killable = alivePlayers.find(c => (c.hp + c.shield) <= dmgPotential);
+                        
+                        if (killable) {
+                            target = killable;
+                        } else {
+                            // Sinon, vise stratégiquement celui qui a le plus d'énergie (pour éviter de se prendre un ulti) ou le soigneur
+                            target = alivePlayers.reduce((prev, curr) => {
+                                // Poids : Énergie élevée > Faible vie
+                                let scorePrev = prev.energy * 20 - (prev.hp + prev.shield);
+                                let scoreCurr = curr.energy * 20 - (curr.hp + curr.shield);
+                                return scorePrev > scoreCurr ? prev : curr;
+                            });
+                        }
+                        
+                        // Si le sort est un soin d'équipe et qu'on est tous full vie, on attaque plutôt (Hard mode save)
+                        if (action === 'skill' && caster.skillType === 'heal_team') {
+                            let totalMissingHp = aliveAllies.reduce((sum, c) => sum + (c.maxHp - c.hp), 0);
+                            if (totalMissingHp < 30) action = 'attack'; // Ne gaspille pas le soin
+                        }
+                    }
+                }
+
+                this.selectedAction = action;
+                this.executeAction(target);
+            },
+
+            checkWinCondition() {
+                const playerAlive = this.playerTeam.some(c => !c.isDead);
+                const enemyAlive = this.enemyTeam.some(c => !c.isDead);
+
+                if (!playerAlive || !enemyAlive) {
+                    this.state = 'game_over';
+                    setTimeout(() => {
+                        const title = document.getElementById('end-title');
+                        const subtitle = document.getElementById('end-subtitle');
+                        
+                        if (playerAlive) {
+                            title.innerText = "Victoire !";
+                            title.style.color = "var(--accent-gold)";
+                            subtitle.innerText = "Vous avez triomphé de l'arène.";
+                            Options.saveStats(true);
+                        } else {
+                            title.innerText = "Défaite...";
+                            title.style.color = "var(--hp-color)";
+                            subtitle.innerText = "L'équipe adverse était trop forte.";
+                            Options.saveStats(false);
+                        }
+                        UI.showScreen('screen-end');
+                    }, 2000); // Laisse le temps de voir la dernière mort
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        // ==========================================
+        // INITIALISATION DU JEU
+        // ==========================================
+        function createParticles() {
+            const bg = document.getElementById('background');
+            for(let i=0; i<40; i++){
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.style.width = Math.random() * 6 + 2 + 'px';
+                p.style.height = p.style.width;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                p.style.animationDelay = (Math.random() * 5) + 's';
+                bg.appendChild(p);
+            }
+        }
+
+        window.onload = () => {
+            Options.load();
+            createParticles();
+        };
+
+        // Tooltip Mouse Tracker
+        document.addEventListener('mousemove', (e) => {
+            const tt = document.getElementById('tooltip');
+            if(tt.style.opacity === '1') {
+                tt.style.left = e.pageX + 15 + 'px';
+                tt.style.top = e.pageY + 15 + 'px';
+            }
+        });
+    </script>
+</body>
+</html>

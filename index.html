@@ -3,20 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <title>House of Laura | Accueil</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- STYLE TOUT-EN-UN BIEN INTÉGRÉ --- */
+        :root {
+            --bg-dark: #09090b;
+            --panel-color: #18181b;
+            --accent-blue: #3b82f6;
+            --text-main: #ffffff;
+            --text-dim: #a1a1aa;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 { 
+            font-size: 2.5rem; 
+            color: var(--accent-blue); 
+            text-align: center; 
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        #menu-container {
+            background: var(--panel-color);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            text-align: center;
+            width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #content-zone { min-height: 200px; margin-top: 20px; }
+        .hidden { display: none !important; }
+
+        button {
+            background: var(--panel-color);
+            border: 1px solid var(--accent-blue);
+            color: white;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        button:hover { 
+            background: var(--accent-blue); 
+            box-shadow: 0 0 15px var(--accent-blue); 
+        }
+
+        #menu-buttons button { display: block; width: 100%; margin: 10px 0; }
+        #info-body { color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
+
     <main id="menu-container">
         <h1>HOUSE OF LAURA</h1>
         <div id="content-zone">
+            <!-- Boutons du menu au milieu -->
             <div id="menu-buttons">
                 <button onclick="window.location.href='jeu.html'">JOUER</button>
                 <button onclick="showPage('options')">OPTIONS</button>
                 <button onclick="showPage('regles')">RÈGLES</button>
             </div>
             
+            <!-- Contenu dynamique intégré au milieu -->
             <div id="info-content" class="hidden">
-                <h2 id="info-title"></h2>
+                <h2 id="info-title" style="color: var(--accent-blue);"></h2>
                 <div id="info-body"></div>
                 <button onclick="showPage('menu')">RETOUR AU MENU</button>
             </div>
@@ -24,6 +89,7 @@
     </main>
 
     <script>
+        /* --- CODE LOGIQUE DU MENU --- */
         function showPage(type) {
             const menuBtns = document.getElementById('menu-buttons');
             const infoContent = document.getElementById('info-content');
@@ -38,10 +104,10 @@
                 infoContent.classList.remove('hidden');
                 if (type === 'regles') {
                     title.innerText = "RÈGLES DU JEU";
-                    body.innerHTML = "<p style='text-align:left; font-size: 0.9rem;'>1. <b>Tour par Tour :</b> Attaquez l'IA, puis laissez-la riposter.<br>2. <b>Énergie :</b> Chaque compétence coûte des points d'action.<br>3. <b>Survie :</b> Si vos PV tombent à 0, vous perdez la carte.<br>4. <b>Objectif :</b> Réduisez les PV du Boss à 0 pour gagner !</p>";
+                    body.innerHTML = "<p style='text-align:left;'>1. <b>Tour par Tour :</b> Attaquez l'IA, puis laissez-la riposter.<br>2. <b>Énergie :</b> Chaque compétence consomme de l'énergie.<br>3. <b>Sélection :</b> Cliquez sur une carte de héros pour voir ses attaques.<br>4. <b>Objectif :</b> Réduisez les PV du Boss à 0 pour gagner !</p>";
                 } else {
                     title.innerText = "OPTIONS";
-                    body.innerHTML = "<p>Les options seront bientôt disponibles pour le Live.</p>";
+                    body.innerHTML = "<p>Les configurations graphiques et sonores seront disponibles lors de la prochaine mise à jour Live.</p>";
                 }
             }
         }

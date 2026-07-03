@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>House of Laura | Arène</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>ARÈNE DE COMBAT</h1>
+        <div id="log">Bienvenue, champion. Sélectionnez un héros pour commencer le combat.</div>
+    </div>
+
+    <div class="arena-container">
+        <div id="enemy-row"></div>
+        <div id="player-row"></div>
+    </div>
+
+    <div id="actions"></div>
+
+    <script src="game.js"></script>
+    <script>
+        // Fonction d'affichage appelée par le moteur de jeu
+        function renderUI() {
+            // Afficher tes héros
+            const pRow = document.getElementById('player-row');
+            pRow.innerHTML = game.state.playerTeam.map((h, i) => `
+                <div class="card" onclick="selectHero(${i})" style="${h.hp <= 0 ? 'opacity: 0.5; filter: grayscale(1);' : ''}">
+                    <div class="card-img" style="background-color: #27272a; background-image: ${h.img ? 'url(\'' + h.img + '\')' : 'none'};">
+                        ${!h.img ? '<span style="display:block; padding-top:60px; text-align:center;">Pas d\'image</span>' : ''}
+                    </div>
+                    <div class="card-info">
+                        <h3>${h.name}</h3>
+                        <div class="hp-bar"><div class="hp-fill" style="width:${Math.max(0, (h.hp/h.maxHp)*100)}%"></div></div>
+                        <p>${Math.max(0, h.hp)} / ${h.maxHp} HP</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Afficher l'IA adverse
+            const eRow = document.getElementById('enemy-row');
+            eRow.innerHTML = `
+                <div class="card" style="border-color: var(--accent-red); transform: scale(1.1);">
+                    <div class="card-info" style="padding-top: 80px;">
+                        <h3 style="color: var(--accent-red);">${game.state.enemy.name}</h3>
+                        <div class="hp-bar"><div class="hp-fill" style="background:var(--accent-red); width:${Math.max(0, (game.state.enemy.hp/game.state.enemy.maxHp)*100)}%"></div></div>
+                        <p>${Math.max(0, game.state.enemy.hp)} HP</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectHero(i) {
+            if (game.state.turn !== 'player' || game.state.playerTeam[i].hp <= 0) return;
+            game.state.selectedIdx = i;
+            const hero = game.state.playerTeam[i];
+            const area = document.getElementById('actions');
+            area.innerHTML = hero.skills.map((s, idx) => `
+                <button onclick="game.useSkill(${idx});">${s.name} (${s.dmg > 0 ? '-' : '+'}${Math.abs(s.dmg)} HP)</button>
+            `).join('');
+            renderUI();
+        }
+
+        // Démarrage au chargement de la page
+        window.onload = () => { game.init('Normale'); };
+    </script>
+</body>
+</html>

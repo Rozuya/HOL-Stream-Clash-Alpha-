@@ -2,14 +2,12 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>House of Laura | Arène</title>
+    <title>House of Laura | Arène 3v3</title>
     <style>
         /* --- DESIGN DE L'ARÈNE --- */
         :root {
             --bg-dark: #09090b;
             --panel-color: #18181b;
-            --accent-blue: #3b82f6;
-            --accent-green: #22c55e;
             --accent-red: #ef4444;
             --text-main: #ffffff;
             --text-dim: #a1a1aa;
@@ -26,56 +24,58 @@
             min-height: 100vh;
         }
 
-        h1 { font-size: 2.2rem; color: var(--accent-blue); text-align: center; margin-top: 20px; margin-bottom: 5px; }
+        h1 { font-size: 2.2rem; color: #9146ff; text-align: center; margin-top: 20px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
         
         #log {
-            width: 650px;
+            width: 700px;
             background: #000;
             border: 1px solid #27272a;
             padding: 12px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
-            color: var(--accent-green);
+            color: #22c55e;
             margin: 0 auto 20px auto;
             font-weight: bold;
             text-align: center;
+            min-height: 20px;
         }
 
         .arena-container {
             display: flex;
-            gap: 40px;
+            flex-direction: column;
+            gap: 30px;
             margin: 10px;
             justify-content: center;
             align-items: center;
-            width: 90%;
+            width: 100%;
         }
 
-        #player-row {
-            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 550px;
+        .team-row {
+            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 600px;
         }
 
         /* --- Cartes --- */
         .card {
             width: 140px;
-            height: 220px;
+            height: 230px;
             background-color: var(--panel-color);
             border: 2px solid #333;
             border-radius: 12px;
             overflow: hidden;
             transition: 0.3s ease;
-            cursor: pointer;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
-        .card:hover { 
+        .player-card { cursor: pointer; }
+        .player-card:hover { 
             transform: translateY(-8px); 
-            border-color: var(--accent-blue); 
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); 
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1); 
         }
 
         .card-img {
-            width: 100%; height: 130px;
+            width: 100%; height: 120px;
             background-size: cover; background-position: center;
             background-repeat: no-repeat;
             color: var(--text-dim); font-size: 0.75rem;
@@ -83,18 +83,19 @@
         }
 
         .card-info { padding: 8px; text-align: center; }
-        .card-info h3 { margin: 0 0 5px 0; font-size: 0.85rem; }
+        .card-info h3 { margin: 0 0 2px 0; font-size: 0.85rem; }
+        .card-info .rarity { font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; }
         .card-info p { margin: 5px 0 0 0; font-size: 0.75rem; color: var(--text-dim); }
 
         /* --- Barres de Vie --- */
         .hp-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 4px; }
-        .hp-fill { height: 100%; background: var(--accent-green); border-radius: 3px; transition: width 0.4s ease; }
+        .hp-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 
         #actions { margin-top: 25px; text-align: center; min-height: 50px; }
         
         button {
             background: var(--panel-color);
-            border: 1px solid var(--accent-blue);
+            border: 1px solid #555;
             color: white;
             padding: 10px 20px;
             margin: 5px;
@@ -104,19 +105,32 @@
             text-transform: uppercase;
             transition: 0.2s;
         }
-        button:hover { background: var(--accent-blue); }
+        button:hover { background: #333; border-color: white !important; color: white !important; }
+        
+        .vs-badge {
+            background: #9146ff;
+            color: white;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>ARÈNE DE COMBAT</h1>
-    <div id="log">Initialisation... Sélectionnez un héros pour attaquer.</div>
+    <h1>Arène 3 vs 3</h1>
+    <div id="log">Initialisation du match...</div>
 
     <div class="arena-container">
-        <!-- Zone IA -->
-        <div id="enemy-row"></div>
+        <!-- Zone IA (Adversaires) -->
+        <div id="enemy-row" class="team-row"></div>
+        
+        <div class="vs-badge">VS</div>
+
         <!-- Zone Joueurs -->
-        <div id="player-row"></div>
+        <div id="player-row" class="team-row"></div>
     </div>
 
     <!-- Zone des compétences -->
@@ -124,26 +138,31 @@
 
     <script>
         // ==========================================
-        // CONFIGURATION ET ENGIN DE JEU INTÉGRÉ
+        // CONFIGURATION DU DECK OFFICIEL
         // ==========================================
         const HEROES_DECK = [
-            { id: 0, name: "House of Laura", img: "house of laura photo jeux de carte.png", hp: 120, maxHp: 120, skills: [ { name: "Coup Rapière", dmg: 20 }, { name: "Égide Sacrée", dmg: -25 }, { name: "Live Ultime", dmg: 55 } ] },
-            { id: 1, name: "Cyber Guerrier", img: "", hp: 140, maxHp: 140, skills: [ { name: "Sabre", dmg: 18 }, { name: "Surcharge", dmg: 45 } ] },
-            { id: 2, name: "Mage Tempête", img: "", hp: 90, maxHp: 90, skills: [ { name: "Éclair", dmg: 25 }, { name: "Foudre", dmg: 60 } ] },
-            { id: 3, name: "Ombre Noire", img: "", hp: 100, maxHp: 100, skills: [ { name: "Dague", dmg: 22 }, { name: "Exécution", dmg: 55 } ] },
-            { id: 4, name: "Paladin Gardien", img: "", hp: 150, maxHp: 150, skills: [ { name: "Marteau", dmg: 15 }, { name: "Soin", dmg: -35 } ] },
-            { id: 5, name: "Alchimiste", img: "", hp: 95, maxHp: 95, skills: [ { name: "Acide", dmg: 20 }, { name: "Explosion", dmg: 50 } ] }
+            { id: 0, name: "House of Laura", rarity: "Légendaire", emoji: "⭐", color: "#fbbf24", img: "house of laura photo jeux de carte.png", hp: 160, maxHp: 160, skills: [ { name: "Ban Hammer", dmg: 35 }, { name: "Soin Commu", dmg: -30 } ] },
+            { id: 1, name: "HOL Tony", rarity: "Épique", emoji: "🟣", color: "#a855f7", img: "", hp: 130, maxHp: 130, skills: [ { name: "Modération", dmg: 25 }, { name: "Sub Hype", dmg: 40 } ] },
+            { id: 2, name: "HOL Rozuya", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [ { name: "Troll", dmg: 20 }, { name: "Clip Parfait", dmg: 35 } ] },
+            { id: 3, name: "HOL Omass", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [ { name: "Spam Emote", dmg: 22 }, { name: "Donation", dmg: 30 } ] },
+            { id: 4, name: "K974YT", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [ { name: "Follow", dmg: 18 }, { name: "Lurk", dmg: 25 } ] },
+            { id: 5, name: "Dark Mortel", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [ { name: "Flamewar", dmg: 20 }, { name: "Backseat", dmg: 28 } ] }
         ];
 
         class GameEngine {
             constructor() {
-                this.state = { playerTeam: [], enemy: null, turn: 'player', selectedIdx: null };
+                this.state = { playerTeam: [], enemyTeam: [], turn: 'player', selectedIdx: null };
             }
 
             init() {
-                this.state.playerTeam = JSON.parse(JSON.stringify(HEROES_DECK));
-                this.state.enemy = { name: "Boss IA Ultime", hp: 350, maxHp: 350 };
-                this.log("Partie lancée ! Cliquez sur un héros pour afficher ses attaques.");
+                // On mélange les 6 personnages de façon aléatoire
+                let shuffled = JSON.parse(JSON.stringify(HEROES_DECK)).sort(() => 0.5 - Math.random());
+                
+                // On sépare en deux équipes de 3
+                this.state.playerTeam = shuffled.slice(0, 3);
+                this.state.enemyTeam = shuffled.slice(3, 6);
+                
+                this.log("Match 3v3 prêt ! Sélectionne un de tes viewers pour attaquer au hasard un adversaire.");
                 renderUI();
             }
 
@@ -159,23 +178,32 @@
                 const skill = hero.skills[skillIdx];
                 
                 if (skill.dmg > 0) {
-                    this.state.enemy.hp = Math.max(0, this.state.enemy.hp - skill.dmg);
-                    this.log(`🔥 ${hero.name} lance ${skill.name} et inflige ${skill.dmg} dégâts !`);
+                    // Cherche les ennemis en vie et en prend un au hasard
+                    let aliveEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
+                    if (aliveEnemies.length === 0) return;
+                    
+                    let target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                    target.hp = Math.max(0, target.hp - skill.dmg);
+                    this.log(`🔥 ${hero.emoji} ${hero.name} lance ${skill.name} sur ${target.name} (-${skill.dmg} HP) !`);
                 } else {
+                    // Soin
                     hero.hp = Math.min(hero.maxHp, hero.hp + Math.abs(skill.dmg));
-                    this.log(`💚 ${hero.name} utilise ${skill.name} et récupère ${Math.abs(skill.dmg)} PV.`);
+                    this.log(`💚 ${hero.emoji} ${hero.name} se soigne avec ${skill.name} (+${Math.abs(skill.dmg)} HP).`);
                 }
                 
                 document.getElementById('actions').innerHTML = "";
                 
-                if (this.state.enemy.hp <= 0) {
-                    this.log("🏆 VICTOIRE ÉPIQUE ! Le Boss IA a été détruit en direct !");
+                // Vérifie si on a gagné
+                let remainingEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
+                if (remainingEnemies.length === 0) {
+                    this.log("🏆 GG WP ! Tous les Haters ont été vaincus !");
                     this.state.turn = 'ended';
-                    document.getElementById('actions').innerHTML = `<button onclick="location.reload()">REJOUER</button>`;
+                    document.getElementById('actions').innerHTML = `<button onclick="location.reload()" style="background:#9146ff; border-color:#9146ff;">RELANCER UN MATCH</button>`;
                     renderUI();
                     return;
                 }
 
+                // Passe le tour à l'IA
                 this.executeAITurn();
             }
 
@@ -185,27 +213,35 @@
                 renderUI();
                 
                 setTimeout(() => {
-                    const aliveHeroes = this.state.playerTeam.filter(h => h.hp > 0);
-                    if (aliveHeroes.length > 0) {
-                        const target = aliveHeroes[Math.floor(Math.random() * aliveHeroes.length)];
-                        const aiDmg = 25;
-                        target.hp = Math.max(0, target.hp - aiDmg);
-                        this.log(`🤖 Le Boss IA réplique et inflige ${aiDmg} dégâts à ${target.name} !`);
+                    let aliveEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
+                    let alivePlayers = this.state.playerTeam.filter(p => p.hp > 0);
+                    
+                    if (aliveEnemies.length > 0 && alivePlayers.length > 0) {
+                        // Un Hater aléatoire attaque un Joueur aléatoire
+                        let attacker = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                        let target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+                        
+                        // Il utilise sa première compétence (attaque)
+                        let skill = attacker.skills[0];
+                        
+                        target.hp = Math.max(0, target.hp - skill.dmg);
+                        this.log(`💀 L'adversaire ${attacker.name} réplique sur ${target.name} (-${skill.dmg} HP) !`);
                     }
                     
-                    const stillAlive = this.state.playerTeam.filter(h => h.hp > 0);
+                    // Vérifie si on a perdu
+                    let stillAlive = this.state.playerTeam.filter(p => p.hp > 0);
                     if (stillAlive.length === 0) {
-                        this.log("💀 GAME OVER... Le Boss a terrassé toute ton équipe.");
+                        this.log("🔴 FIN DE STREAM... Ton équipe s'est fait détruire.");
                         this.state.turn = 'ended';
-                        document.getElementById('actions').innerHTML = `<button onclick="location.reload()">REJOUER</button>`;
+                        document.getElementById('actions').innerHTML = `<button onclick="location.reload()" style="background:#ef4444; border-color:#ef4444;">RECOMMENCER</button>`;
                         renderUI();
                         return;
                     }
                     
                     this.state.turn = 'player';
-                    this.log("À ton tour ! Sélectionne un héros disponible.");
+                    this.log("À ton tour ! La commu compte sur toi.");
                     renderUI();
-                }, 1200);
+                }, 1500); // 1.5 seconde de pause avant la riposte pour que ce soit fluide
             }
         }
 
@@ -213,30 +249,45 @@
 
         // --- AFFICHAGE DE L'INTERFACE INTERNE ---
         function renderUI() {
+            // Affichage de l'équipe du joueur
             const pRow = document.getElementById('player-row');
             pRow.innerHTML = game.state.playerTeam.map((h, i) => `
-                <div class="card" onclick="selectHero(${i})" style="${h.hp <= 0 ? 'opacity: 0.4; filter: grayscale(1); cursor:not-allowed;' : ''} ${game.state.selectedIdx === i ? 'border-color: var(--accent-blue);' : ''}">
+                <div class="card player-card" onclick="selectHero(${i})" style="
+                    ${h.hp <= 0 ? 'opacity: 0.3; filter: grayscale(1); cursor:not-allowed;' : ''} 
+                    border-color: ${game.state.selectedIdx === i ? h.color : '#333'};
+                    box-shadow: ${game.state.selectedIdx === i ? '0 0 15px ' + h.color : 'none'};
+                ">
                     <div class="card-img" style="background-color: #27272a; ${h.img ? "background-image: url('" + encodeURI(h.img) + "');" : ""}">
-                        ${!h.img ? '<span style="display:block; padding-top:55px; text-align:center;">Pas d\'image</span>' : ''}
+                        ${!h.img ? '<span style="display:block; padding-top:50px; text-align:center;">Pas d\'image</span>' : ''}
                     </div>
                     <div class="card-info">
                         <h3>${h.name}</h3>
-                        <div class="hp-bar"><div class="hp-fill" style="width:${(h.hp/h.maxHp)*100}%"></div></div>
+                        <div class="rarity" style="color: ${h.color};">${h.emoji} ${h.rarity}</div>
+                        <div class="hp-bar"><div class="hp-fill" style="background:${h.color}; width:${(h.hp/h.maxHp)*100}%"></div></div>
                         <p>${h.hp} / ${h.maxHp} HP</p>
                     </div>
                 </div>
             `).join('');
 
+            // Affichage de l'équipe ennemie
             const eRow = document.getElementById('enemy-row');
-            eRow.innerHTML = `
-                <div class="card" style="border-color: var(--accent-red); width: 160px; height: 240px; justify-content: center;">
+            eRow.innerHTML = game.state.enemyTeam.map((h, i) => `
+                <div class="card" style="
+                    ${h.hp <= 0 ? 'opacity: 0.3; filter: grayscale(1);' : ''} 
+                    border-color: #ef4444; background: #111;
+                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+                ">
+                    <div class="card-img" style="background-color: #2a1111; filter: sepia(1) hue-rotate(-50deg) saturate(3); ${h.img ? "background-image: url('" + encodeURI(h.img) + "');" : ""}">
+                        ${!h.img ? '<span style="display:block; padding-top:50px; text-align:center; color:#ef4444;">Adversaire</span>' : ''}
+                    </div>
                     <div class="card-info">
-                        <h2 style="color: var(--accent-red); margin: 0 0 10px 0; font-size: 1.1rem;">${game.state.enemy.name}</h2>
-                        <div class="hp-bar" style="height: 10px;"><div class="hp-fill" style="background:var(--accent-red); width:${(game.state.enemy.hp/game.state.enemy.maxHp)*100}%"></div></div>
-                        <p style="font-size: 1rem; font-weight: bold; margin-top: 10px;">${game.state.enemy.hp} HP</p>
+                        <h3>${h.name}</h3>
+                        <div class="rarity" style="color: #ef4444;">🔴 Équipe Hater</div>
+                        <div class="hp-bar"><div class="hp-fill" style="background:#ef4444; width:${(h.hp/h.maxHp)*100}%"></div></div>
+                        <p>${h.hp} / ${h.maxHp} HP</p>
                     </div>
                 </div>
-            `;
+            `).join('');
         }
 
         function selectHero(i) {
@@ -246,7 +297,9 @@
             const area = document.getElementById('actions');
             
             area.innerHTML = hero.skills.map((s, idx) => `
-                <button onclick="game.useSkill(${idx});">${s.name} (${s.dmg > 0 ? '-' + s.dmg : '+' + Math.abs(s.dmg)} HP)</button>
+                <button onclick="game.useSkill(${idx});" style="border-color: ${hero.color}; color: ${hero.color};">
+                    ${s.name} (${s.dmg > 0 ? '-' + s.dmg : '+' + Math.abs(s.dmg)} HP)
+                </button>
             `).join('');
             renderUI();
         }

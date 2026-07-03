@@ -4,344 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House of Laura | Accueil</title>
-    
-    <!-- Importation de polices gaming/esport depuis Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    
     <style>
-        /* --- DESIGN PROFESSIONNEL "STREAM TWITCH" --- */
         :root {
-            --bg-base: #0e0e10;      /* Fond sombre Twitch */
-            --bg-panel: #18181b;     /* Fond des panneaux */
-            --bg-panel-hover: #1f1f23;
-            --twitch-purple: #9146ff; /* Violet officiel Twitch */
-            --twitch-purple-glow: rgba(145, 70, 255, 0.4);
-            --text-main: #efeff1;
+            --bg-base: #0e0e10;
+            --bg-panel: #18181b;
+            --twitch-purple: #9146ff;
+            --twitch-hover: #a970ff;
+            --text-main: #ffffff;
             --text-muted: #adadb8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             background-color: var(--bg-base);
-            /* Petit effet de grille en fond pour le style overlay gaming */
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
             color: var(--text-main);
             font-family: 'Roboto', sans-serif;
-            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(145, 70, 255, 0.15), transparent 50%);
         }
 
-        /* --- LE PANNEAU DU MENU --- */
-        #menu-container {
-            background: rgba(24, 24, 27, 0.85);
-            backdrop-filter: blur(8px); /* Effet verre moderne */
-            padding: 50px 40px 30px 40px;
-            border-radius: 16px;
+        .container {
+            background: var(--bg-panel);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 5px solid var(--twitch-purple); /* Ligne d'accent Twitch en haut */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             text-align: center;
-            width: 450px; /* Un peu élargi pour les options */
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px var(--twitch-purple-glow);
             position: relative;
         }
 
-        /* Badge LIVE clignotant */
-        .live-badge {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #e91916;
-            color: white;
+        .header h1 {
             font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            padding: 4px 16px;
-            border-radius: 4px;
-            font-size: 1rem;
-            letter-spacing: 1.5px;
-            box-shadow: 0 0 10px rgba(233, 25, 22, 0.6);
-            animation: pulseLive 2s infinite;
-            text-transform: uppercase;
-        }
-
-        @keyframes pulseLive {
-            0% { box-shadow: 0 0 5px rgba(233, 25, 22, 0.4); }
-            50% { box-shadow: 0 0 15px rgba(233, 25, 22, 1); }
-            100% { box-shadow: 0 0 5px rgba(233, 25, 22, 0.4); }
-        }
-
-        h1 { 
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 3.5rem; 
-            margin: 0 0 30px 0;
-            line-height: 1;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-size: 3rem;
             color: var(--text-main);
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
         }
 
-        .hidden { display: none !important; }
+        .header h1 span {
+            color: var(--twitch-purple);
+        }
 
-        /* --- BOUTONS DU MENU --- */
         .menu-btn {
             display: block;
             width: 100%;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-main);
-            padding: 18px 24px;
-            margin: 12px 0;
+            padding: 16px;
+            margin-bottom: 15px;
             border-radius: 8px;
-            cursor: pointer;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
             text-transform: uppercase;
-            transition: all 0.2s ease;
-            position: relative;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .menu-btn::before {
-            content: '';
-            position: absolute;
-            left: -1px;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: transparent;
-            transition: all 0.2s ease;
-            border-radius: 8px 0 0 8px;
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
 
-        .menu-btn:hover { 
-            background: var(--bg-panel-hover);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(5px);
-        }
-
-        .menu-btn:hover::before { background: var(--twitch-purple); }
-
-        .btn-play {
+        .btn-primary {
             background: var(--twitch-purple);
-            border: 1px solid var(--twitch-purple);
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-color: var(--twitch-purple);
+        }
+
+        .btn-primary:hover {
+            background: var(--twitch-hover);
+            border-color: var(--twitch-hover);
+            box-shadow: 0 8px 20px rgba(145, 70, 255, 0.3);
+        }
+
+        .content-section {
+            display: none;
+            text-align: left;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2rem;
+            color: var(--twitch-purple);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .content-text {
+            color: var(--text-muted);
+            line-height: 1.6;
             margin-bottom: 25px;
         }
 
-        .btn-play:hover {
-            background: #a970ff;
-            border-color: #a970ff;
-            box-shadow: 0 0 20px var(--twitch-purple-glow);
-            transform: scale(1.03);
-        }
-        .btn-play::before { display: none; }
-
-        /* --- ZONES DE TEXTE & OPTIONS --- */
-        #info-content { text-align: left; animation: fadeIn 0.4s ease; }
-
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        .content-text p {
+            margin-bottom: 10px;
         }
 
-        #info-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 2.2rem;
-            color: var(--twitch-purple);
-            margin-top: 0;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        #info-body { 
-            color: var(--text-muted); 
-            line-height: 1.6; 
-            margin-bottom: 30px; 
-            font-size: 1.05rem;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        #info-body b { color: var(--twitch-purple); }
-        .list-item { margin-bottom: 12px; }
-
-        /* Styles Spécifiques pour les Options */
-        .option-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 6px;
-        }
-        
-        .option-group label { color: var(--text-main); font-weight: 500; }
-
-        /* Sliders stylisés */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 50%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px; width: 16px;
-            border-radius: 50%;
-            background: var(--twitch-purple);
-            cursor: pointer;
-            margin-top: -6px;
-            box-shadow: 0 0 10px var(--twitch-purple-glow);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px;
-            cursor: pointer;
-            background: #333;
-            border-radius: 2px;
-        }
-
-        /* Toggle Switches (Cases à cocher) */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 40px; height: 20px;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333; transition: .4s;
-            border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute; content: "";
-            height: 14px; width: 14px; left: 3px; bottom: 3px;
-            background-color: white; transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--twitch-purple); }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--text-muted);
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--text-main);
-            color: white;
-        }
-
-        .credits {
-            margin-top: 25px;
-            font-size: 0.8rem;
+        .footer {
+            margin-top: 30px;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            opacity: 0.5;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
 
-    <main id="menu-container">
-        <!-- Le badge streamer ! -->
-        <div class="live-badge">En direct</div>
-        
-        <h1>House of Laura</h1>
-        
-        <div id="content-zone">
-            <!-- Menu Principal -->
-            <div id="menu-buttons">
-                <button class="menu-btn btn-play" onclick="window.location.href='jeu.html'">Lancer le 3v3</button>
-                <button class="menu-btn" onclick="showPage('options')">Paramètres</button>
-                <button class="menu-btn" onclick="showPage('regles')">Règles du jeu</button>
-            </div>
-            
-            <!-- Contenu Dynamique (Caché de base) -->
-            <div id="info-content" class="hidden">
-                <h2 id="info-title">Titre</h2>
-                <div id="info-body"></div>
-                <button class="btn-back" onclick="showPage('menu')">Retour au menu</button>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>House of <span>Laura</span></h1>
         </div>
 
-        <div class="credits">House of Laura TCG © 2024</div>
-    </main>
+        <!-- Menu Principal -->
+        <div id="view-menu" class="content-section active">
+            <button class="menu-btn btn-primary" onclick="window.location.href='jeu.html'">Lancer le Jeu (3v3)</button>
+            <button class="menu-btn" onclick="switchView('view-rules')">Règles du Jeu</button>
+            <button class="menu-btn" onclick="switchView('view-options')">Paramètres</button>
+        </div>
+
+        <!-- Section Règles -->
+        <div id="view-rules" class="content-section">
+            <h2 class="content-title">Comment Jouer</h2>
+            <div class="content-text">
+                <p><strong>1. La Draft :</strong> Le jeu sélectionne 6 personnages au hasard. 3 pour ton équipe, 3 pour l'équipe adverse.</p>
+                <p><strong>2. Le Combat :</strong> Clique sur l'une de tes cartes pour attaquer. La cible est choisie aléatoirement parmi les ennemis en vie.</p>
+                <p><strong>3. La Riposte :</strong> L'intelligence artificielle contre-attaque immédiatement après ton tour.</p>
+                <p><strong>4. Objectif :</strong> Élimine l'équipe adverse avant que tes points de vie ne tombent à zéro.</p>
+            </div>
+            <button class="menu-btn" onclick="switchView('view-menu')">Retour au menu</button>
+        </div>
+
+        <!-- Section Options -->
+        <div id="view-options" class="content-section">
+            <h2 class="content-title">Paramètres</h2>
+            <div class="content-text">
+                <p><em>Note : Les fonctionnalités avancées de sauvegarde et d'audio seront déployées dans une mise à jour ultérieure.</em></p>
+                <p>✔️ Mode sombre activé par défaut.</p>
+                <p>✔️ Animations fluides activées.</p>
+                <p>✔️ Optimisation mobile activée.</p>
+            </div>
+            <button class="menu-btn" onclick="switchView('view-menu')">Retour au menu</button>
+        </div>
+
+        <div class="footer">
+            &copy; 2024 House of Laura - Tous droits réservés.
+        </div>
+    </div>
 
     <script>
-        /* --- GESTION DE L'INTERFACE --- */
-        function showPage(type) {
-            const menuBtns = document.getElementById('menu-buttons');
-            const infoContent = document.getElementById('info-content');
-            const title = document.getElementById('info-title');
-            const body = document.getElementById('info-body');
-
-            if (type === 'menu') {
-                menuBtns.classList.remove('hidden');
-                infoContent.classList.add('hidden');
-            } else {
-                menuBtns.classList.add('hidden');
-                infoContent.classList.remove('hidden');
-                
-                if (type === 'regles') {
-                    title.innerText = "COMMENT JOUER ?";
-                    body.innerHTML = `
-                        <div class="list-item"><b>1. La Draft (3v3) :</b> Au lancement, les membres de la commu sont mélangés. 3 sont dans ton équipe, 3 passent du côté obscur.</div>
-                        <div class="list-item"><b>2. L'Attaque :</b> Sélectionne une capacité d'une de tes cartes. Elle frappera un adversaire aléatoire en vie.</div>
-                        <div class="list-item"><b>3. La Riposte :</b> L'équipe Hater n'attend pas ! Après ton attaque, l'IA ripostera sur l'un de tes personnages.</div>
-                        <div class="list-item"><b>4. Victoire :</b> Élimine les 3 Haters en face pour gagner le raid. Si tes 3 cartes tombent à 0 HP, le stream s'arrête !</div>
-                    `;
-                } else if (type === 'options') {
-                    title.innerText = "PARAMÈTRES";
-                    body.innerHTML = `
-                        <div class="option-group">
-                            <label>Musique d'ambiance</label>
-                            <input type="range" min="0" max="100" value="70">
-                        </div>
-                        <div class="option-group">
-                            <label>Volume des Alertes</label>
-                            <input type="range" min="0" max="100" value="100">
-                        </div>
-                        <div class="option-group">
-                            <label>Effets Visuels (Néon)</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="option-group">
-                            <label>Mode Sombre Automatique</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked disabled>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    `;
-                }
-            }
+        function switchView(viewId) {
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
         }
     </script>
 </body>

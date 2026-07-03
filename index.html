@@ -2,111 +2,92 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>HOL Arena - Pro Version</title>
+    <title>HOL Arena | Ultime</title>
     <style>
-        :root { --bg: #0f172a; --panel: #1e293b; --accent: #38bdf8; --danger: #f43f5e; --ally: #22c55e; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; height: 100vh; }
+        :root { --bg: #09090b; --panel: #18181b; --accent: #3b82f6; --player: #22c55e; --enemy: #ef4444; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+
+        /* Menu & Overlay */
+        #ui-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        .menu-card { background: var(--panel); padding: 30px; border-radius: 15px; text-align: center; width: 400px; border: 1px solid #333; }
         
-        .arena { display: flex; flex-direction: column; gap: 40px; margin-top: 20px; }
-        .team { display: flex; gap: 15px; }
-        
-        .card { width: 130px; background: var(--panel); padding: 12px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-        .card.selected { border-color: var(--accent); transform: scale(1.05); }
-        .card.enemy { cursor: default; }
-        
-        .bar { height: 8px; background: #334155; border-radius: 4px; margin: 8px 0; overflow: hidden; }
-        .fill { height: 100%; transition: 0.4s; }
-        
-        .hud { position: fixed; bottom: 20px; width: 90%; max-width: 600px; background: var(--panel); padding: 20px; border-radius: 15px; text-align: center; }
-        .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        button { padding: 12px; border: none; border-radius: 6px; cursor: pointer; background: var(--accent); font-weight: bold; }
-        button:disabled { background: #475569; cursor: not-allowed; }
-        
-        #menu { position: fixed; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+        /* Arena */
+        .game-ui { display: flex; flex-direction: column; gap: 30px; align-items: center; }
+        .row { display: flex; gap: 20px; }
+        .card { width: 140px; background: var(--panel); padding: 15px; border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .card.active { border-color: var(--accent); transform: scale(1.05); }
+        .hp-bar { height: 8px; background: #27272a; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        .fill { height: 100%; transition: 0.5s; }
+
+        #log { width: 500px; height: 100px; background: #000; padding: 10px; border-radius: 8px; font-size: 14px; color: #a1a1aa; overflow-y: auto; border: 1px solid #333; }
+        button { padding: 10px 20px; border-radius: 6px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="menu">
-    <h1>CHOISIR DIFFICULTÉ</h1>
-    <button onclick="startGame('Facile')">🤖 Facile (Robot)</button>
-    <button onclick="startGame('Normale')">⚔️ Normale (Soldat)</button>
-    <button onclick="startGame('Difficile')">🔥 Difficile (Grand Maître)</button>
+<div id="ui-overlay">
+    <div class="menu-card">
+        <h1>HOL ARENA</h1>
+        <p>Règles : Éliminez l'IA. 1 tour chacun. Choisissez votre héros pour attaquer.</p>
+        <select id="diff" style="padding: 10px; width: 100%; margin-bottom: 20px;">
+            <option value="Facile">IA Facile (Dégâts faibles)</option>
+            <option value="Normale">IA Normale (Dégâts moyens)</option>
+            <option value="Difficile">IA Difficile (Dégâts élevés + soins)</option>
+        </select>
+        <button onclick="initGame()">COMMENCER LE LIVE</button>
+    </div>
 </div>
 
-<div class="arena">
-    <div class="team" id="enemy-team"></div>
-    <div id="status">Sélectionnez un héros</div>
-    <div class="team" id="player-team"></div>
-</div>
-
-<div class="hud">
-    <div id="skill-buttons" class="actions"></div>
+<div class="game-ui">
+    <div class="row" id="enemy-row"></div>
+    <div id="log">Bienvenue dans l'arène !</div>
+    <div class="row" id="player-row"></div>
+    <div id="actions"></div>
 </div>
 
 <script>
-    const CHARS = [
-        { name: "Guerrier", hp: 120, skills: [{n:"Frappe", d:20, c:0}, {n:"Bouclier", d:-30, c:1}, {n:"Ultime", d:60, c:3}] },
-        { name: "Mage", hp: 90, skills: [{n:"Éclair", d:25, c:0}, {n:"Soin", d:-40, c:1}, {n:"Nova", d:45, c:2}] }
-    ];
+    let state = { p: [], e: [], turn: 'player', diff: '' };
 
-    let game = { pTeam: [], eTeam: [], turn: 'player', selectedIdx: null, diff: '' };
-
-    function startGame(d) {
-        game.diff = d;
-        game.pTeam = CHARS.map(c => ({...c, hp: c.hp, maxHp: c.hp, energy: 0}));
-        game.eTeam = CHARS.map(c => ({...c, hp: c.hp, maxHp: c.hp, energy: 0}));
-        document.getElementById('menu').style.display = 'none';
-        render();
+    function initGame() {
+        state.diff = document.getElementById('diff').value;
+        state.p = [{n:"Guerrier", hp:100, max:100}, {n:"Mage", hp:80, max:80}];
+        state.e = [{n:"IA ("+state.diff+")", hp:150, max:150}];
+        document.getElementById('ui-overlay').style.display = 'none';
+        update();
     }
 
-    function render() {
-        document.getElementById('player-team').innerHTML = game.pTeam.map((c, i) => `
-            <div class="card ${game.selectedIdx === i ? 'selected' : ''}" onclick="selectHero(${i})">
-                <div>${c.name}</div>
-                <div class="bar"><div class="fill" style="width:${(c.hp/c.maxHp)*100}%; background:var(--ally)"></div></div>
-                <div>⚡ ${c.energy}</div>
+    function update() {
+        document.getElementById('player-row').innerHTML = state.p.map((p, i) => `
+            <div class="card" onclick="select(${i})">
+                <h3>${p.n}</h3>
+                <div class="hp-bar"><div class="fill" style="width:${(p.hp/p.max)*100}%; background:var(--player)"></div></div>
             </div>`).join('');
-        
-        document.getElementById('enemy-team').innerHTML = game.eTeam.map(c => `
-            <div class="card enemy">
-                <div>IA</div>
-                <div class="bar"><div class="fill" style="width:${(c.hp/c.maxHp)*100}%; background:var(--danger)"></div></div>
-            </div>`).join('');
+        document.getElementById('enemy-row').innerHTML = state.e.map(e => `
+            <div class="card"><h3>${e.n}</h3><div class="hp-bar"><div class="fill" style="width:${(e.hp/e.max)*100}%; background:var(--enemy)"></div></div></div>`).join('');
     }
 
-    function selectHero(i) {
-        if(game.turn !== 'player') return;
-        game.selectedIdx = i;
-        const h = game.pTeam[i];
-        document.getElementById('skill-buttons').innerHTML = h.skills.map((s, idx) => `
-            <button onclick="play(${idx})" ${h.energy < s.c ? 'disabled' : ''}>${s.n} (⚡${s.c})</button>
-        `).join('');
-        render();
+    function select(i) {
+        if(state.turn !== 'player') return;
+        document.getElementById('actions').innerHTML = `
+            <button onclick="attack(${i})">ATTAQUER (-20 HP)</button>
+        `;
     }
 
-    function play(sIdx) {
-        const h = game.pTeam[game.selectedIdx];
-        const s = h.skills[sIdx];
-        h.energy -= s.c;
-        if(s.d > 0) game.eTeam[0].hp -= s.d;
-        else h.hp = Math.min(h.maxHp, h.hp - s.d);
-        
-        game.turn = 'enemy';
-        render();
+    function attack(i) {
+        state.e[0].hp -= 20;
+        document.getElementById('log').innerHTML = `Le ${state.p[i].n} attaque ! IA : -20 HP`;
+        state.turn = 'ai';
+        update();
         setTimeout(aiTurn, 1000);
     }
 
     function aiTurn() {
-        const ai = game.eTeam[0];
-        // IA logique selon difficulté
-        if(game.diff === 'Facile') ai.hp -= 5; // IA maladroite
-        else if(game.diff === 'Normale') game.pTeam[0].hp -= 10;
-        else if(game.diff === 'Difficile') { game.pTeam[0].hp -= 20; ai.hp += 10; } // IA tricheuse
-
-        game.turn = 'player';
-        game.pTeam.forEach(c => c.energy++);
-        render();
+        let dmg = (state.diff === 'Facile' ? 5 : state.diff === 'Normale' ? 15 : 30);
+        state.p[0].hp -= dmg;
+        document.getElementById('log').innerHTML = `L'IA réplique ! ${state.p[0].n} : -${dmg} HP`;
+        state.turn = 'player';
+        document.getElementById('actions').innerHTML = "";
+        update();
     }
 </script>
 </body>

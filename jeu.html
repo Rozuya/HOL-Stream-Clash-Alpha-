@@ -2,309 +2,319 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House of Laura | Arène 3v3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN DE L'ARÈNE --- */
         :root {
-            --bg-dark: #09090b;
+            --bg-base: #0e0e10;
             --panel-color: #18181b;
-            --accent-red: #ef4444;
             --text-main: #ffffff;
             --text-dim: #a1a1aa;
+            --twitch-purple: #9146ff;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-base);
             color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
+            font-family: 'Roboto', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
-        h1 { font-size: 2.2rem; color: #9146ff; text-align: center; margin-top: 20px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
-        
-        #log {
-            width: 700px;
+        .header-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            color: var(--twitch-purple);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        #log-box {
+            width: 100%;
+            max-width: 800px;
             background: #000;
-            border: 1px solid #27272a;
-            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            color: #22c55e;
-            margin: 0 auto 20px auto;
-            font-weight: bold;
+            font-family: monospace;
+            color: var(--success-green);
             text-align: center;
-            min-height: 20px;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            min-height: 54px;
         }
 
-        .arena-container {
+        .arena {
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            margin: 10px;
-            justify-content: center;
-            align-items: center;
+            gap: 40px;
             width: 100%;
+            max-width: 900px;
+            align-items: center;
         }
 
-        .team-row {
-            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 600px;
+        .team-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        /* --- Cartes --- */
+        .vs-badge {
+            background: var(--twitch-purple);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 8px 24px;
+            border-radius: 30px;
+            letter-spacing: 2px;
+        }
+
         .card {
-            width: 140px;
-            height: 230px;
+            width: 150px;
             background-color: var(--panel-color);
             border: 2px solid #333;
             border-radius: 12px;
             overflow: hidden;
-            transition: 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .card.player { cursor: pointer; }
+        .card.player:hover { transform: translateY(-5px); }
+        .card.dead { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+
+        .card-image-placeholder {
+            width: 100%;
+            height: 120px;
+            background-color: #27272a;
             display: flex;
-            flex-direction: column;
-            position: relative;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            background-size: cover;
+            background-position: center;
         }
 
-        .player-card { cursor: pointer; }
-        .player-card:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1); 
+        .card-content {
+            padding: 12px;
+            text-align: center;
         }
 
-        .card-img {
-            width: 100%; height: 120px;
-            background-size: cover; background-position: center;
-            background-repeat: no-repeat;
-            color: var(--text-dim); font-size: 0.75rem;
-            position: relative;
-        }
-
-        .card-info { padding: 8px; text-align: center; }
-        .card-info h3 { margin: 0 0 2px 0; font-size: 0.85rem; }
-        .card-info .rarity { font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; }
-        .card-info p { margin: 5px 0 0 0; font-size: 0.75rem; color: var(--text-dim); }
-
-        /* --- Barres de Vie --- */
-        .hp-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 4px; }
-        .hp-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-
-        #actions { margin-top: 25px; text-align: center; min-height: 50px; }
+        .card-name { font-size: 0.95rem; font-weight: bold; margin-bottom: 4px; }
+        .card-rarity { font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; }
         
-        button {
+        .hp-bar-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
+        .hp-bar-fill { height: 100%; transition: width 0.3s ease; }
+        .hp-text { font-size: 0.8rem; color: var(--text-dim); }
+
+        #action-panel {
+            margin-top: 30px;
+            min-height: 60px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
             background: var(--panel-color);
             border: 1px solid #555;
             color: white;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
             text-transform: uppercase;
-            transition: 0.2s;
+            transition: all 0.2s ease;
         }
-        button:hover { background: #333; border-color: white !important; color: white !important; }
-        
-        .vs-badge {
-            background: #9146ff;
-            color: white;
-            font-weight: bold;
-            padding: 5px 15px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+
+        .action-btn:hover { background: #333; border-color: white; }
     </style>
 </head>
 <body>
 
-    <h1>Arène 3 vs 3</h1>
-    <div id="log">Initialisation du match...</div>
+    <h1 class="header-title">Arène 3 vs 3</h1>
+    <div id="log-box">Lancement du match...</div>
 
-    <div class="arena-container">
-        <!-- Zone IA (Adversaires) -->
-        <div id="enemy-row" class="team-row"></div>
-        
+    <div class="arena">
+        <div id="enemy-team" class="team-container"></div>
         <div class="vs-badge">VS</div>
-
-        <!-- Zone Joueurs -->
-        <div id="player-row" class="team-row"></div>
+        <div id="player-team" class="team-container"></div>
     </div>
 
-    <!-- Zone des compétences -->
-    <div id="actions"></div>
+    <div id="action-panel"></div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION DU DECK OFFICIEL
-        // ==========================================
-        const HEROES_DECK = [
-            { id: 0, name: "House of Laura", rarity: "Légendaire", emoji: "⭐", color: "#fbbf24", img: "house of laura photo jeux de carte.png", hp: 160, maxHp: 160, skills: [ { name: "Ban Hammer", dmg: 35 }, { name: "Soin Commu", dmg: -30 } ] },
-            { id: 1, name: "HOL Tony", rarity: "Épique", emoji: "🟣", color: "#a855f7", img: "", hp: 130, maxHp: 130, skills: [ { name: "Modération", dmg: 25 }, { name: "Sub Hype", dmg: 40 } ] },
-            { id: 2, name: "HOL Rozuya", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [ { name: "Troll", dmg: 20 }, { name: "Clip Parfait", dmg: 35 } ] },
-            { id: 3, name: "HOL Omass", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [ { name: "Spam Emote", dmg: 22 }, { name: "Donation", dmg: 30 } ] },
-            { id: 4, name: "K974YT", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [ { name: "Follow", dmg: 18 }, { name: "Lurk", dmg: 25 } ] },
-            { id: 5, name: "Dark Mortel", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [ { name: "Flamewar", dmg: 20 }, { name: "Backseat", dmg: 28 } ] }
+        const HEROES_DATABASE = [
+            { id: 0, name: "House of Laura", rarity: "Légendaire", emoji: "⭐", color: "#fbbf24", img: "house of laura photo jeux de carte.png", hp: 160, maxHp: 160, skills: [{ name: "Ban Hammer", dmg: 35 }, { name: "Soin Commu", dmg: -30 }] },
+            { id: 1, name: "HOL Tony", rarity: "Épique", emoji: "🟣", color: "#a855f7", img: "", hp: 130, maxHp: 130, skills: [{ name: "Modération", dmg: 25 }, { name: "Sub Hype", dmg: 40 }] },
+            { id: 2, name: "HOL Rozuya", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [{ name: "Troll", dmg: 20 }, { name: "Clip Parfait", dmg: 35 }] },
+            { id: 3, name: "HOL Omass", rarity: "Rare", emoji: "🔵", color: "#3b82f6", img: "", hp: 110, maxHp: 110, skills: [{ name: "Spam Emote", dmg: 22 }, { name: "Donation", dmg: 30 }] },
+            { id: 4, name: "K974YT", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [{ name: "Follow", dmg: 18 }, { name: "Lurk", dmg: 25 }] },
+            { id: 5, name: "Dark Mortel", rarity: "Commune", emoji: "🟢", color: "#22c55e", img: "", hp: 90, maxHp: 90, skills: [{ name: "Flamewar", dmg: 20 }, { name: "Backseat", dmg: 28 }] }
         ];
 
-        class GameEngine {
-            constructor() {
-                this.state = { playerTeam: [], enemyTeam: [], turn: 'player', selectedIdx: null };
+        let state = {
+            playerTeam: [],
+            enemyTeam: [],
+            turn: 'player',
+            selectedIdx: null
+        };
+
+        function initGame() {
+            let deck = JSON.parse(JSON.stringify(HEROES_DATABASE));
+            deck.sort(() => 0.5 - Math.random());
+            
+            state.playerTeam = deck.slice(0, 3);
+            state.enemyTeam = deck.slice(3, 6);
+            
+            updateLog("Le match commence ! Sélectionne un personnage pour attaquer.");
+            renderBoard();
+        }
+
+        function updateLog(message) {
+            document.getElementById('log-box').innerText = "> " + message;
+        }
+
+        function getImageUrl(imgString) {
+            if (!imgString) return '';
+            return "background-image: url('" + encodeURIComponent(imgString).replace(/'/g, "%27") + "');";
+        }
+
+        function renderBoard() {
+            const playerContainer = document.getElementById('player-team');
+            const enemyContainer = document.getElementById('enemy-team');
+
+            // Render Équipe Joueur
+            playerContainer.innerHTML = state.playerTeam.map((hero, index) => {
+                const isDead = hero.hp <= 0;
+                const isSelected = state.selectedIdx === index;
+                const borderStyle = isSelected ? "border-color: " + hero.color + "; box-shadow: 0 0 15px " + hero.color + ";" : "";
+                const imgStyle = getImageUrl(hero.img);
+
+                return '<div class="card player ' + (isDead ? 'dead' : '') + '" style="' + borderStyle + '" onclick="selectHero(' + index + ')">' +
+                    '<div class="card-image-placeholder" style="' + imgStyle + '">' + (!hero.img ? 'Pas d\'image' : '') + '</div>' +
+                    '<div class="card-content">' +
+                        '<div class="card-name">' + hero.name + '</div>' +
+                        '<div class="card-rarity" style="color: ' + hero.color + ';">' + hero.emoji + ' ' + hero.rarity + '</div>' +
+                        '<div class="hp-bar-bg"><div class="hp-bar-fill" style="background: ' + hero.color + '; width: ' + ((hero.hp / hero.maxHp) * 100) + '%;"></div></div>' +
+                        '<div class="hp-text">' + hero.hp + ' / ' + hero.maxHp + ' HP</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            // Render Équipe Ennemie
+            enemyContainer.innerHTML = state.enemyTeam.map(hero => {
+                const isDead = hero.hp <= 0;
+                const enemyColor = "var(--danger-red)";
+                const imgStyle = getImageUrl(hero.img);
+
+                return '<div class="card ' + (isDead ? 'dead' : '') + '" style="border-color: ' + enemyColor + ';">' +
+                    '<div class="card-image-placeholder" style="' + imgStyle + ' filter: sepia(1) hue-rotate(-50deg);">' + (!hero.img ? 'Adversaire' : '') + '</div>' +
+                    '<div class="card-content">' +
+                        '<div class="card-name">' + hero.name + '</div>' +
+                        '<div class="card-rarity" style="color: ' + enemyColor + ';">🔴 Hater</div>' +
+                        '<div class="hp-bar-bg"><div class="hp-bar-fill" style="background: ' + enemyColor + '; width: ' + ((hero.hp / hero.maxHp) * 100) + '%;"></div></div>' +
+                        '<div class="hp-text">' + hero.hp + ' / ' + hero.maxHp + ' HP</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function selectHero(index) {
+            if (state.turn !== 'player' || state.playerTeam[index].hp <= 0) return;
+            state.selectedIdx = index;
+            renderBoard();
+
+            const hero = state.playerTeam[index];
+            const panel = document.getElementById('action-panel');
+            
+            panel.innerHTML = hero.skills.map((skill, skillIndex) => {
+                const effectText = skill.dmg > 0 ? "-" + skill.dmg + " HP" : "+" + Math.abs(skill.dmg) + " HP";
+                return '<button class="action-btn" style="color: ' + hero.color + '; border-color: ' + hero.color + ';" onclick="executeAction(' + skillIndex + ')">' + skill.name + ' (' + effectText + ')</button>';
+            }).join('');
+        }
+
+        function executeAction(skillIndex) {
+            if (state.selectedIdx === null || state.turn !== 'player') return;
+
+            const hero = state.playerTeam[state.selectedIdx];
+            const skill = hero.skills[skillIndex];
+
+            if (skill.dmg > 0) {
+                let aliveEnemies = state.enemyTeam.filter(e => e.hp > 0);
+                if (aliveEnemies.length === 0) return;
+                
+                let target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                target.hp = Math.max(0, target.hp - skill.dmg);
+                updateLog(hero.name + " attaque " + target.name + " et inflige " + skill.dmg + " dégâts !");
+            } else {
+                hero.hp = Math.min(hero.maxHp, hero.hp + Math.abs(skill.dmg));
+                updateLog(hero.name + " se soigne de " + Math.abs(skill.dmg) + " HP.");
             }
 
-            init() {
-                // On mélange les 6 personnages de façon aléatoire
-                let shuffled = JSON.parse(JSON.stringify(HEROES_DECK)).sort(() => 0.5 - Math.random());
-                
-                // On sépare en deux équipes de 3
-                this.state.playerTeam = shuffled.slice(0, 3);
-                this.state.enemyTeam = shuffled.slice(3, 6);
-                
-                this.log("Match 3v3 prêt ! Sélectionne un de tes viewers pour attaquer au hasard un adversaire.");
-                renderUI();
+            document.getElementById('action-panel').innerHTML = "";
+            state.selectedIdx = null;
+            renderBoard();
+
+            let enemiesAlive = state.enemyTeam.filter(e => e.hp > 0).length;
+            if (enemiesAlive === 0) {
+                endGame("VICTOIRE ! L'équipe adverse a été anéantie.", "var(--twitch-purple)");
+                return;
             }
 
-            log(msg) {
-                const logBox = document.getElementById('log');
-                if (logBox) logBox.innerHTML = `<div>> ${msg}</div>`;
-            }
+            executeAITurn();
+        }
 
-            useSkill(skillIdx) {
-                if (this.state.selectedIdx === null || this.state.turn !== 'player') return;
+        function executeAITurn() {
+            state.turn = 'enemy';
+            
+            setTimeout(() => {
+                let aliveEnemies = state.enemyTeam.filter(e => e.hp > 0);
+                let alivePlayers = state.playerTeam.filter(p => p.hp > 0);
                 
-                const hero = this.state.playerTeam[this.state.selectedIdx];
-                const skill = hero.skills[skillIdx];
-                
-                if (skill.dmg > 0) {
-                    // Cherche les ennemis en vie et en prend un au hasard
-                    let aliveEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
-                    if (aliveEnemies.length === 0) return;
+                if (aliveEnemies.length > 0 && alivePlayers.length > 0) {
+                    let attacker = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+                    let target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+                    let skill = attacker.skills[0];
                     
-                    let target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
                     target.hp = Math.max(0, target.hp - skill.dmg);
-                    this.log(`🔥 ${hero.emoji} ${hero.name} lance ${skill.name} sur ${target.name} (-${skill.dmg} HP) !`);
-                } else {
-                    // Soin
-                    hero.hp = Math.min(hero.maxHp, hero.hp + Math.abs(skill.dmg));
-                    this.log(`💚 ${hero.emoji} ${hero.name} se soigne avec ${skill.name} (+${Math.abs(skill.dmg)} HP).`);
+                    updateLog("L'adversaire " + attacker.name + " attaque " + target.name + " (-" + skill.dmg + " HP) !");
                 }
                 
-                document.getElementById('actions').innerHTML = "";
-                
-                // Vérifie si on a gagné
-                let remainingEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
-                if (remainingEnemies.length === 0) {
-                    this.log("🏆 GG WP ! Tous les Haters ont été vaincus !");
-                    this.state.turn = 'ended';
-                    document.getElementById('actions').innerHTML = `<button onclick="location.reload()" style="background:#9146ff; border-color:#9146ff;">RELANCER UN MATCH</button>`;
-                    renderUI();
+                renderBoard();
+
+                let playersAlive = state.playerTeam.filter(p => p.hp > 0).length;
+                if (playersAlive === 0) {
+                    endGame("DÉFAITE... Ton équipe a été vaincue.", "var(--danger-red)");
                     return;
                 }
-
-                // Passe le tour à l'IA
-                this.executeAITurn();
-            }
-
-            executeAITurn() {
-                this.state.turn = 'enemy';
-                this.state.selectedIdx = null;
-                renderUI();
                 
-                setTimeout(() => {
-                    let aliveEnemies = this.state.enemyTeam.filter(e => e.hp > 0);
-                    let alivePlayers = this.state.playerTeam.filter(p => p.hp > 0);
-                    
-                    if (aliveEnemies.length > 0 && alivePlayers.length > 0) {
-                        // Un Hater aléatoire attaque un Joueur aléatoire
-                        let attacker = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
-                        let target = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
-                        
-                        // Il utilise sa première compétence (attaque)
-                        let skill = attacker.skills[0];
-                        
-                        target.hp = Math.max(0, target.hp - skill.dmg);
-                        this.log(`💀 L'adversaire ${attacker.name} réplique sur ${target.name} (-${skill.dmg} HP) !`);
-                    }
-                    
-                    // Vérifie si on a perdu
-                    let stillAlive = this.state.playerTeam.filter(p => p.hp > 0);
-                    if (stillAlive.length === 0) {
-                        this.log("🔴 FIN DE STREAM... Ton équipe s'est fait détruire.");
-                        this.state.turn = 'ended';
-                        document.getElementById('actions').innerHTML = `<button onclick="location.reload()" style="background:#ef4444; border-color:#ef4444;">RECOMMENCER</button>`;
-                        renderUI();
-                        return;
-                    }
-                    
-                    this.state.turn = 'player';
-                    this.log("À ton tour ! La commu compte sur toi.");
-                    renderUI();
-                }, 1500); // 1.5 seconde de pause avant la riposte pour que ce soit fluide
-            }
+                state.turn = 'player';
+            }, 1500);
         }
 
-        const game = new GameEngine();
-
-        // --- AFFICHAGE DE L'INTERFACE INTERNE ---
-        function renderUI() {
-            // Affichage de l'équipe du joueur
-            const pRow = document.getElementById('player-row');
-            pRow.innerHTML = game.state.playerTeam.map((h, i) => `
-                <div class="card player-card" onclick="selectHero(${i})" style="
-                    ${h.hp <= 0 ? 'opacity: 0.3; filter: grayscale(1); cursor:not-allowed;' : ''} 
-                    border-color: ${game.state.selectedIdx === i ? h.color : '#333'};
-                    box-shadow: ${game.state.selectedIdx === i ? '0 0 15px ' + h.color : 'none'};
-                ">
-                    <div class="card-img" style="background-color: #27272a; ${h.img ? "background-image: url('" + encodeURI(h.img) + "');" : ""}">
-                        ${!h.img ? '<span style="display:block; padding-top:50px; text-align:center;">Pas d\'image</span>' : ''}
-                    </div>
-                    <div class="card-info">
-                        <h3>${h.name}</h3>
-                        <div class="rarity" style="color: ${h.color};">${h.emoji} ${h.rarity}</div>
-                        <div class="hp-bar"><div class="hp-fill" style="background:${h.color}; width:${(h.hp/h.maxHp)*100}%"></div></div>
-                        <p>${h.hp} / ${h.maxHp} HP</p>
-                    </div>
-                </div>
-            `).join('');
-
-            // Affichage de l'équipe ennemie
-            const eRow = document.getElementById('enemy-row');
-            eRow.innerHTML = game.state.enemyTeam.map((h, i) => `
-                <div class="card" style="
-                    ${h.hp <= 0 ? 'opacity: 0.3; filter: grayscale(1);' : ''} 
-                    border-color: #ef4444; background: #111;
-                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
-                ">
-                    <div class="card-img" style="background-color: #2a1111; filter: sepia(1) hue-rotate(-50deg) saturate(3); ${h.img ? "background-image: url('" + encodeURI(h.img) + "');" : ""}">
-                        ${!h.img ? '<span style="display:block; padding-top:50px; text-align:center; color:#ef4444;">Adversaire</span>' : ''}
-                    </div>
-                    <div class="card-info">
-                        <h3>${h.name}</h3>
-                        <div class="rarity" style="color: #ef4444;">🔴 Équipe Hater</div>
-                        <div class="hp-bar"><div class="hp-fill" style="background:#ef4444; width:${(h.hp/h.maxHp)*100}%"></div></div>
-                        <p>${h.hp} / ${h.maxHp} HP</p>
-                    </div>
-                </div>
-            `).join('');
+        function endGame(message, color) {
+            state.turn = 'ended';
+            updateLog(message);
+            document.getElementById('action-panel').innerHTML = '<button class="action-btn" style="background: ' + color + '; border-color: ' + color + ';" onclick="location.reload()">Rejouer une partie</button>';
         }
 
-        function selectHero(i) {
-            if (game.state.turn !== 'player' || game.state.playerTeam[i].hp <= 0) return;
-            game.state.selectedIdx = i;
-            const hero = game.state.playerTeam[i];
-            const area = document.getElementById('actions');
-            
-            area.innerHTML = hero.skills.map((s, idx) => `
-                <button onclick="game.useSkill(${idx});" style="border-color: ${hero.color}; color: ${hero.color};">
-                    ${s.name} (${s.dmg > 0 ? '-' + s.dmg : '+' + Math.abs(s.dmg)} HP)
-                </button>
-            `).join('');
-            renderUI();
-        }
-
-        window.onload = () => { game.init(); };
+        window.onload = initGame;
     </script>
 </body>
 </html>

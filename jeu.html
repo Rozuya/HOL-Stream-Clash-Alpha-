@@ -216,7 +216,7 @@
             const pRow = document.getElementById('player-row');
             pRow.innerHTML = game.state.playerTeam.map((h, i) => `
                 <div class="card" onclick="selectHero(${i})" style="${h.hp <= 0 ? 'opacity: 0.4; filter: grayscale(1); cursor:not-allowed;' : ''} ${game.state.selectedIdx === i ? 'border-color: var(--accent-blue);' : ''}">
-                    <div class="card-img" style="background-color: #27272a; ${h.img ? "background-image: url('" + h.img + "');" : ""}">
+                    <div class="card-img" style="background-color: #27272a; ${h.img ? "background-image: url('" + encodeURI(h.img) + "');" : ""}">
                         ${!h.img ? '<span style="display:block; padding-top:55px; text-align:center;">Pas d\'image</span>' : ''}
                     </div>
                     <div class="card-info">

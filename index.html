@@ -2,15 +2,12 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>House of Laura | Accueil</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <main id="menu-container">
-        <!-- Zone de titre -->
         <h1>HOUSE OF LAURA</h1>
-        
-        <!-- Zone dynamique : soit les boutons, soit le contenu -->
         <div id="content-zone">
             <div id="menu-buttons">
                 <button onclick="window.location.href='jeu.html'">JOUER</button>
@@ -21,7 +18,7 @@
             <div id="info-content" class="hidden">
                 <h2 id="info-title"></h2>
                 <div id="info-body"></div>
-                <button onclick="showPage('menu')">RETOUR</button>
+                <button onclick="showPage('menu')">RETOUR AU MENU</button>
             </div>
         </div>
     </main>
@@ -39,19 +36,12 @@
             } else {
                 menuBtns.classList.add('hidden');
                 infoContent.classList.remove('hidden');
-                
                 if (type === 'regles') {
                     title.innerText = "RÈGLES DU JEU";
-                    body.innerHTML = `
-                        <p style="text-align:left; font-size: 0.9rem;">
-                            1. <b>Tour par Tour :</b> Attaquez l'IA, puis laissez-la riposter.<br>
-                            2. <b>Gestion d'Énergie :</b> Chaque compétence coûte de l'énergie.<br>
-                            3. <b>Points de Vie :</b> Si vos PV tombent à 0, vous perdez.<br>
-                            4. <b>Objectif :</b> Réduisez les PV de l'IA à 0 pour gagner !
-                        </p>`;
+                    body.innerHTML = "<p style='text-align:left; font-size: 0.9rem;'>1. <b>Tour par Tour :</b> Attaquez l'IA, puis laissez-la riposter.<br>2. <b>Énergie :</b> Chaque compétence coûte des points d'action.<br>3. <b>Survie :</b> Si vos PV tombent à 0, vous perdez la carte.<br>4. <b>Objectif :</b> Réduisez les PV du Boss à 0 pour gagner !</p>";
                 } else {
                     title.innerText = "OPTIONS";
-                    body.innerHTML = "<p>Paramètres du jeu bientôt disponibles.</p>";
+                    body.innerHTML = "<p>Les options seront bientôt disponibles pour le Live.</p>";
                 }
             }
         }
